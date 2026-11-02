@@ -1,0 +1,2701 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strafobico</title>
+<!-- Font Pally (Fontshare, Indian Type Foundry: gratuito anche per uso commerciale) -->
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=pally@400,500,700&display=swap">
+<style>
+  :root { --bg:#ffffff; --fg:#1f2328; --muted:#6b7280; --line:#e5e7eb; --acc:#1a73e8; --accbg:#e8f0fe; --card:#f6f8fb; --fest:#d93025; --ok:#188038; --shade:rgba(0,0,0,.45); --warnbg:#fef7e0; --warnfg:#7a5b00; --errbg:#fce8e6; --errfg:#a50e0e; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg:#121212; --fg:#e8eaed; --muted:#9aa0a6; --line:#2d2f33; --acc:#8ab4f8; --accbg:#1f2a3d; --card:#1c1d20; --fest:#f28b82; --ok:#81c995; --shade:rgba(0,0,0,.65); --warnbg:#3a3000; --warnfg:#fdd663; --errbg:#3c1414; --errfg:#f28b82; }
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  body { margin:0; font-family:"Pally", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--fg); font-size:14px; }
+  button, input, select, textarea { font-family:inherit; }
+  .wrap { max-width:480px; margin:0 auto; padding:12px 12px 90px; }
+  header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  header h1 { font-size:18px; margin:0; text-transform:capitalize; }
+  .testa-c { display:flex; align-items:center; gap:9px; min-width:0; }
+  .testa-logo { width:34px; height:34px; border-radius:22%; flex:none; }
+  .nav { border:1px solid var(--line); background:transparent; color:var(--fg); width:38px; height:38px; border-radius:50%; font-size:20px; cursor:pointer; }
+  .nav:disabled { opacity:.35; cursor:default; }
+  .stato { min-height:18px; font-size:12px; color:var(--muted); text-align:center; margin-bottom:8px; }
+  .stato.ok { color:var(--ok); } .stato.err { color:var(--fest); }
+  .banner { border-radius:10px; padding:10px 12px; font-size:12.5px; margin-bottom:10px; line-height:1.4; display:none; }
+  .banner.on { display:block; }
+  .banner.demo { background:var(--warnbg); color:var(--warnfg); }
+  .banner.err { background:var(--errbg); color:var(--errfg); }
+  .prop { position:sticky; top:0; z-index:4; background:var(--accbg); border:1px solid var(--acc); border-radius:12px; padding:10px 12px; margin-bottom:10px; display:none; }
+  .prop.on { display:block; }
+  .prop p { margin:0 0 8px; font-size:12.5px; line-height:1.4; }
+  .strumenti { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+  .strumenti .modo { flex:1 1 100%; }
+  .strumenti .bimm { flex:1 1 0; }
+  .modo { flex:1; display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:13px; }
+  .modo small { color:var(--muted); display:block; font-size:11px; }
+  .bimm { flex:none; border:1px solid var(--line); background:var(--card); color:var(--fg); border-radius:10px; padding:8px 10px; font-size:13px; font-weight:600; cursor:pointer; line-height:1.2; }
+  .sw { position:relative; width:42px; height:24px; flex:none; }
+  .sw input { opacity:0; width:0; height:0; }
+  .sw span { position:absolute; inset:0; background:var(--line); border-radius:24px; transition:.2s; cursor:pointer; }
+  .sw span:before { content:""; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; }
+  .sw input:checked + span { background:var(--acc); }
+  .sw input:checked + span:before { transform:translateX(18px); }
+  .grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; }
+  .dow { text-align:center; font-size:11px; color:var(--muted); padding-bottom:2px; }
+  .d { position:relative; min-height:60px; border:1px solid var(--line); border-radius:8px; padding:3px; cursor:pointer; display:flex; flex-direction:column; gap:2px; user-select:none; -webkit-tap-highlight-color:transparent; background:var(--bg); }
+  .d .n { font-size:11px; color:var(--muted); }
+  .d .piu { margin:auto; color:var(--line); font-size:18px; line-height:1; }
+  .d.oggi { border-color:var(--acc); }
+  .d.oggi .n { color:var(--acc); font-weight:700; }
+  .d.fest .n { color:var(--fest); }
+  .d.mod { border-style:dashed; }
+  .d.dubbio { border:2px solid var(--fest); padding:2px; }
+  .d.sel { background:var(--accbg); border:2px solid var(--acc); padding:2px; }
+  .d.sel:after { content:"✓"; position:absolute; bottom:2px; right:4px; font-size:11px; color:var(--acc); font-weight:700; }
+  .d .fx { position:absolute; top:1px; right:2px; font-size:12px; line-height:1; }
+  .d.vuoto { visibility:hidden; }
+  .chip { font-size:10.5px; font-weight:700; border-radius:4px; text-align:center; padding:2px 0; white-space:nowrap; overflow:hidden; }
+  .chip.q { background:var(--fest); color:#fff; }
+  .riep { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+  .riep .car { color:var(--muted); font-size:12px; padding:10px; text-align:center; }
+  .ico { display:inline-flex; align-items:center; justify-content:center; flex:none; }
+  .ico svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .ico.bg { width:38px; height:38px; border-radius:10px; background:var(--bgi); }
+  .c-ore { color:#1a73e8; --bgi:#e8f0fe; } .c-stra { color:#e37400; --bgi:#fef3e0; } .c-giorni { color:#0f9d58; --bgi:#e6f4ea; }
+  .c-fest { color:#d93025; --bgi:#fce8e6; }
+  .c-conta { color:#c26401; --bgi:#feefe3; }
+  .c-verde { color:#188038; --bgi:#e6f4ea; } .c-giallo { color:#e8a400; --bgi:#fef7e0; } .c-rosso { color:#d93025; --bgi:#fce8e6; } .c-corso { color:#8e24aa; --bgi:#f3e8fd; } .c-soldi { color:#188038; --bgi:#e6f4ea; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ico.bg { background:rgba(255,255,255,.07); } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+  .card button, button.card { width:100%; display:flex; align-items:center; gap:12px; padding:11px 12px; background:transparent; border:0; color:var(--fg); font:inherit; text-align:left; cursor:pointer; }
+  button.card { background:var(--card); border:1px solid var(--line); }
+  .card button:active, button.card:active { background:var(--accbg); }
+  .card .lb { display:flex; flex-direction:column; gap:1px; min-width:0; }
+  .card .lb span { font-size:12px; color:var(--muted); }
+  .card .lb b { font-size:19px; }
+  .card .lb small { font-size:11.5px; color:var(--muted); }
+  .card .fr { margin-left:auto; color:var(--muted); font-size:20px; }
+  .card .fr.giu { transition:transform .2s; display:inline-block; }
+  .card.aperta .fr.giu { transform:rotate(90deg); }
+  .tendina { display:none; border-top:1px solid var(--line); }
+  .card.aperta .tendina { display:block; }
+  .tendina button { padding:10px 12px 10px 22px; border-top:1px solid var(--line); gap:12px; }
+  .tendina button:first-child { border-top:0; }
+  .tendina .ico svg { width:20px; height:20px; }
+  .tendina .t { font-size:14px; }
+  .tendina .v { margin-left:auto; font-weight:700; font-size:14px; white-space:nowrap; }
+  .tendina .v.no { color:var(--acc); font-weight:600; font-size:13px; }
+  .tendina .v + .fr { margin-left:6px; font-size:18px; }
+  .tendina .tutto .t { color:var(--acc); font-size:13px; }
+  .card .occhio { flex:none; width:38px !important; height:38px; border-radius:50%; border:1px solid var(--line) !important; background:var(--bg) !important; display:inline-flex !important; align-items:center; justify-content:center; padding:0 !important; margin-left:auto; color:var(--muted) !important; }
+  .card .occhio svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .card.soldi { display:flex; align-items:center; }
+  .card.soldi > button.apri { flex:1; min-width:0; }
+  .card.soldi .occhio { margin:0 12px 0 0; }
+  .sub3 { display:grid; grid-template-columns:repeat(3, 1fr); border-top:1px solid var(--line); }
+  .sub3 button { flex-direction:column; align-items:flex-start; gap:4px; padding:10px; border-left:1px solid var(--line); }
+  .sub3 button:first-child { border-left:0; }
+  .sub3 .ico svg { width:20px; height:20px; }
+  .sub3 span.t { font-size:11.5px; color:var(--muted); }
+  .sub3 b { font-size:15px; }
+  .sub3 b.no { font-size:12px; color:var(--acc); font-weight:600; }
+  details.orari .campi { display:grid; grid-template-columns:1fr 92px; gap:8px 10px; align-items:center; margin-top:10px; font-size:13px; }
+  details.orari .campi input:not([type=checkbox]) { width:100%; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); font-size:15px; text-align:right; }
+  details.orari .campi small { display:block; color:var(--muted); font-size:11px; }
+  details.orari .campi .chk { justify-self:end; width:22px; height:22px; }
+  details.orari .campi input.lungo { text-align:left; }
+  .home { background:var(--accbg); border:1px solid var(--acc); border-radius:12px; padding:10px 12px; margin-bottom:10px; font-size:13px; line-height:1.45; display:none; }
+  .home.on { display:block; }
+  .home .riga { margin-top:8px; }
+  .home .btn { padding:8px; font-size:13px; }
+  /* dettagli */
+  .sez { border-top:1px solid var(--line); margin-top:12px; padding-top:12px; }
+  .sez:first-of-type { border-top:0; margin-top:6px; padding-top:4px; }
+  .sez h3 { font-size:15px; margin:0 0 4px; }
+  .calstato { background:var(--card); border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.55; margin-top:6px; }
+  .calstato .ok { color:var(--ok); font-weight:700; } .calstato .no { color:var(--fest); font-weight:700; }
+  .calapri { display:block; margin-top:10px; color:var(--acc); font-size:13px; text-decoration:none; }
+  .nuovo-turno { width:100%; margin-top:8px; padding:11px; border-radius:12px; border:1.5px dashed var(--line); background:transparent; color:var(--acc); font:inherit; font-weight:600; cursor:pointer; }
+  details.letto { margin-top:10px; font-size:12px; color:var(--muted); }
+  details.letto summary { cursor:pointer; color:var(--acc); }
+  details.letto pre { white-space:pre-wrap; word-break:break-word; background:var(--card); border-radius:8px; padding:8px; max-height:200px; overflow:auto; font-size:11px; color:var(--fg); }
+  .tlista { display:flex; flex-direction:column; margin-top:10px; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .tlista button { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg); border:0; border-top:1px solid var(--line); color:var(--fg); font:inherit; text-align:left; cursor:pointer; }
+  .tlista button:first-child { border-top:0; }
+  .tlista .nm { font-weight:600; }
+  .tlista .or { color:var(--muted); font-size:12px; display:block; font-weight:400; }
+  .tlista .fr { margin-left:auto; color:var(--muted); font-size:18px; }
+  .tlista .sep { background:var(--card); color:var(--muted); font-size:11.5px; font-weight:700; padding:6px 12px; border-top:1px solid var(--line); }
+  .tlista .nasc { opacity:.55; }
+  .chipbig { flex:none; min-width:40px; height:32px; padding:0 8px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:3px; font-weight:800; font-size:14px; }
+  .anteprima { display:flex; align-items:center; gap:10px; background:var(--card); border-radius:12px; padding:10px 12px; margin:10px 0 4px; font-size:14px; }
+  .anteprima small { color:var(--muted); display:block; font-size:12px; }
+  .doppio { display:grid; grid-template-columns:1fr 84px; gap:10px; }
+  .tripla { display:grid; grid-template-columns:1fr 1fr 90px; gap:8px; }
+  .doppio .lbl, .tripla .lbl, #edOreBox { display:flex; flex-direction:column; gap:4px; }
+  .modelli { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; margin-top:8px; }
+  .modelli button { flex:none; padding:7px 11px; border-radius:999px; border:1px dashed var(--line); background:var(--bg); color:var(--fg); cursor:pointer; font-size:13px; }
+  .cat { display:flex; flex-direction:column; gap:6px; }
+  .cat button { display:flex; flex-direction:column; align-items:flex-start; gap:1px; padding:9px 12px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--fg); cursor:pointer; text-align:left; font:inherit; font-size:14px; }
+  .cat button small { color:var(--muted); font-size:12px; }
+  .cat button.on { border:2px solid var(--acc); padding:8px 11px; background:var(--accbg); }
+  .icone { display:grid; grid-template-columns:repeat(8, 1fr); gap:4px; }
+  .icone button { aspect-ratio:1; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--fg); font-size:19px; cursor:pointer; padding:0; }
+  .icone button.on { border:2px solid var(--acc); background:var(--accbg); }
+  .icone button.aa { font-size:12px; font-weight:700; }
+  .colori { display:grid; grid-template-columns:repeat(6, 1fr); gap:8px; }
+  .colori button { height:34px; border-radius:50%; border:3px solid transparent; cursor:pointer; outline:none; }
+  .colori button.on { border-color:var(--bg); box-shadow:0 0 0 2px var(--fg); }
+  .btn.ross { color:var(--fest); }
+  .account { margin-top:16px; text-align:center; font-size:12.5px; color:var(--muted); line-height:1.8; }
+  .firma { display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--muted); font-size:12px; margin:22px 0 0; letter-spacing:.2px; }
+  .firma img { width:34px; height:34px; border-radius:9px; margin-bottom:4px; }
+  .firma b { color:var(--fg); font-size:14px; letter-spacing:.3px; }
+  /* schermata iniziale */
+  #splash { position:fixed; inset:0; z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; }
+  #splash .sfondo { position:absolute; inset:0; background:#0d1017; transition:opacity .55s ease; }
+  #splash .logo { position:relative; display:flex; flex-direction:column; align-items:center; gap:22px; transition:opacity .5s ease .4s, transform .6s ease .4s; }
+  #splash img { width:min(190px, 52vw); height:min(190px, 52vw); border-radius:22%; box-shadow:0 16px 50px rgba(0,0,0,.6); opacity:0; transform:scale(.88); animation:entra .75s cubic-bezier(.2,.8,.2,1) .1s forwards; }
+  #splash .nome { color:#fff; font-size:min(46px, 12vw); font-weight:800; letter-spacing:.5px; text-shadow:0 2px 14px rgba(0,0,0,.45); opacity:0; transform:translateY(10px); animation:entra .75s cubic-bezier(.2,.8,.2,1) .35s forwards; }
+  #splash .nome span { color:#f6b81a; }
+  #splash.via { pointer-events:none; }
+  @keyframes entra { to { opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce) {
+    #splash img, #splash .nome { animation-duration:.01s; animation-delay:0s; }
+    #splash .sfondo, #splash .logo { transition-duration:.15s; transition-delay:0s; }
+  }
+  .account a { color:var(--acc); text-decoration:none; display:inline-block; margin:0 8px; }
+  .benv .bi { font-size:22px; width:30px; flex:none; text-align:center; }
+  .cntchips { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+  .cntchips i { font-style:normal; font-size:12px; font-weight:700; border-radius:6px; padding:2px 7px; }
+  .det-head { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+  .det-head h2 { margin:0; }
+  .det-tot { display:flex; align-items:baseline; gap:8px; margin:6px 0 4px; flex-wrap:wrap; }
+  .det-r.no { opacity:.6; }
+  .det-tot b { font-size:26px; }
+  .det-tot span { color:var(--muted); font-size:13px; }
+  .det-reg { color:var(--muted); font-size:12px; line-height:1.45; margin-bottom:10px; }
+  .det-lista { display:flex; flex-direction:column; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .det-sett { background:var(--card); padding:7px 12px; font-size:12px; font-weight:700; display:flex; justify-content:space-between; color:var(--muted); }
+  .det-r { display:flex; align-items:center; gap:10px; padding:9px 12px; border-top:1px solid var(--line); font-size:13.5px; }
+  .det-sett + .det-r, .det-lista > .det-r:first-child { border-top:0; }
+  .det-r .gg { width:58px; flex:none; color:var(--muted); font-size:12.5px; }
+  .det-r .gg.f { color:var(--fest); }
+  .det-r .cs { display:flex; gap:3px; flex-wrap:wrap; }
+  .det-r .cs i { font-style:normal; font-size:11px; font-weight:700; border-radius:4px; padding:1px 6px; }
+  .det-r .tx { color:var(--muted); font-size:12px; }
+  .det-r .vl { margin-left:auto; font-weight:700; white-space:nowrap; text-align:right; }
+  .det-r .vl small { display:block; font-weight:400; color:var(--muted); font-size:11px; }
+  .det-vuoto { padding:16px 12px; color:var(--muted); font-size:13px; text-align:center; }
+  .det-conto .det-r .vl { font-weight:600; }
+  .det-conto .det-r.tot { background:var(--card); }
+  .det-conto .det-r.tot .vl, .det-conto .det-r.tot .tx2 { font-weight:800; font-size:15px; }
+  .tx2 { font-size:13.5px; }
+  details.orari { margin-top:14px; border:1px solid var(--line); border-radius:12px; padding:10px 12px; }
+  details.orari summary { cursor:pointer; font-weight:600; }
+  .origa { display:grid; grid-template-columns:auto 1fr 1fr 64px; gap:6px; align-items:center; margin-top:10px; font-size:12px; }
+  .origa label { display:flex; flex-direction:column; gap:2px; color:var(--muted); font-size:11px; }
+  .origa input, .campo { width:100%; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); font-size:15px; }
+  .hint { color:var(--muted); font-size:12px; line-height:1.4; }
+  .link { display:block; text-align:center; margin-top:14px; color:var(--acc); font-size:13px; text-decoration:none; }
+  .barra { position:fixed; left:0; right:0; bottom:0; background:var(--bg); border-top:1px solid var(--line); padding:10px 12px; display:none; z-index:5; }
+  .barra.on { display:block; }
+  .barra .in { max-width:480px; margin:0 auto; display:flex; gap:8px; align-items:center; }
+  .barra .cnt { font-size:12px; color:var(--muted); flex:none; }
+  .btn { flex:1; padding:11px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--fg); font-weight:600; font-size:14px; cursor:pointer; text-align:center; }
+  .btn.pri { background:var(--acc); border-color:var(--acc); color:var(--bg); }
+  .btn:disabled { opacity:.45; cursor:default; }
+  /* menu a comparsa */
+  .velo { position:fixed; inset:0; background:var(--shade); display:none; align-items:flex-end; justify-content:center; z-index:10; }
+  .velo.on { display:flex; }
+  .foglio { background:var(--bg); width:100%; max-width:480px; border-radius:16px 16px 0 0; padding:16px 14px 18px; max-height:88vh; overflow:auto; }
+  .foglio h2 { font-size:16px; margin:0 0 2px; }
+  .foglio .sotto { color:var(--muted); font-size:12.5px; margin-bottom:12px; line-height:1.45; }
+  .scelte { display:flex; flex-direction:column; gap:8px; }
+  .scelta { display:flex; align-items:center; gap:12px; border:1px solid var(--line); background:var(--bg); color:var(--fg); border-radius:12px; padding:12px; cursor:pointer; text-align:left; font-size:15px; }
+  .scelta .sg { flex:none; width:40px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; }
+  .scelta .tx { display:flex; flex-direction:column; }
+  .scelta .or { color:var(--muted); font-size:12px; }
+  .scelta .ck { margin-left:auto; width:24px; height:24px; border-radius:6px; border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-weight:800; color:transparent; flex:none; }
+  .scelta.on { border:2px solid var(--acc); padding:11px; background:var(--accbg); }
+  .scelta.on .ck { background:var(--acc); border-color:var(--acc); color:var(--bg); }
+  .riga { display:flex; gap:8px; margin-top:14px; }
+  .ore { display:flex; align-items:center; justify-content:center; gap:14px; margin:10px 0 8px; }
+  .ore button { width:48px; height:48px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--fg); font-size:22px; cursor:pointer; }
+  .ore input { width:110px; text-align:center; font-size:28px; font-weight:700; padding:6px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--fg); }
+  .rapide { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+  .rapide button, .nomi button { padding:7px 12px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--fg); cursor:pointer; font-weight:600; }
+  .rapide button.on { background:var(--acc); color:var(--bg); border-color:var(--acc); }
+  .nomi { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px; }
+  .lbl { display:block; font-size:12px; color:var(--muted); margin:10px 0 4px; }
+  .prog { height:8px; background:var(--card); border-radius:8px; overflow:hidden; margin:14px 0 6px; }
+  .prog i { display:block; height:100%; width:0; background:var(--acc); transition:width .2s; }
+  .riass { background:var(--card); border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.6; }
+  .msgerr { background:var(--errbg); color:var(--errfg); border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.45; }
+  .file { position:absolute; width:1px; height:1px; opacity:0; }
+  /* ferie */
+  .c-ferie { color:#0b8043; --bgi:#e6f4ea; }
+  .fbarra { height:8px; border-radius:8px; background:var(--line); overflow:hidden; display:flex; margin:4px 0 2px; width:100%; }
+  .fbarra i { display:block; height:100%; }
+  .fconti { display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin:6px 0 10px; }
+  .fconti div { background:var(--card); border-radius:10px; padding:8px; text-align:center; }
+  .fconti b { display:block; font-size:20px; } .fconti span { font-size:11px; color:var(--muted); }
+  .pill { font-size:11px; border-radius:999px; padding:2px 8px; font-weight:700; }
+  .pill.g { background:#e6f4ea; color:#137333; } .pill.p { background:#e8f0fe; color:#1967d2; }
+  .date2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .date2 label { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--muted); }
+  .fant b.v { color:#0b8043; } .fant .no { color:var(--fest); }
+  /* busta paga */
+  .bpcampi { display:grid; grid-template-columns:1fr 130px; gap:8px 10px; align-items:center; font-size:13px; margin-top:8px; }
+  .bpcampi small { display:block; color:var(--muted); font-size:11px; }
+  .bpcampi input, .bpcampi select { width:100%; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); font:inherit; font-size:15px; text-align:right; }
+  .bpcampi input.trovato { border-color:var(--ok); }
+  .bpcampi input.manca { border-color:var(--fest); }
+  .bpchk { display:flex; gap:8px; align-items:flex-start; font-size:13px; margin-top:10px; line-height:1.35; }
+  .bpchk input { margin-top:2px; }
+</style>
+</head>
+<body>
+<div id="splash" role="img" aria-label="Strafobico"><div class="sfondo"></div><div class="logo"><img alt="" src="data:image/webp;base64,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"><div class="nome">Strafo<span>bico</span></div></div></div>
+<div class="wrap">
+  <header>
+    <button class="nav" id="prev" aria-label="Mese precedente">‹</button>
+    <div class="testa-c"><img id="testaLogo" class="testa-logo" alt="Strafobico"><h1 id="titolo"></h1></div>
+    <button class="nav" id="next" aria-label="Mese successivo">›</button>
+  </header>
+  <div class="stato" id="stato">Caricamento…</div>
+  <div class="banner demo" id="demo">
+    <b>Anteprima.</b> Qui puoi provare il pannello, ma i turni non vengono salvati su Google.
+    Per usarlo davvero apri il link dell'app web.
+  </div>
+  <div class="banner err" id="avviso"></div>
+  <div class="home" id="home">
+    <b>📲 Mettila sulla schermata Home</b><br><span id="homeTesto"></span>
+    <div class="riga">
+      <button class="btn" id="homeNo">Non ora</button>
+      <button class="btn pri" id="homeOk">Fatto</button>
+    </div>
+  </div>
+
+  <div class="prop" id="prop">
+    <p id="propTesto"></p>
+    <div class="riga" style="margin-top:0">
+      <button class="btn" id="propAnnulla">Annulla</button>
+      <button class="btn pri" id="propConferma">Conferma e salva</button>
+    </div>
+  </div>
+
+  <div class="strumenti">
+    <div class="modo">
+      <div>Seleziona più giorni<small>Tocca i giorni, poi "Aggiungi turni"</small></div>
+      <label class="sw"><input type="checkbox" id="multi"><span></span></label>
+    </div>
+    <button class="bimm" id="apriFerie" hidden>🏖️<br>Ferie</button>
+    <button class="bimm" id="apriImp">📷<br>Da foto</button>
+    <button class="bimm" id="apriBusta">📄<br>Busta paga</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="riep" id="riep"></div>
+
+  <details class="orari" id="impBox">
+    <summary>⚙️ Impostazioni</summary>
+
+    <section class="sez" id="regoleBox">
+    <h3>💶 Paga e straordinario</h3>
+    <div class="campi">
+      <label for="rOreMese">Ore mensili<small>oltre queste, nel mese, scatta lo straordinario</small></label><input id="rOreMese" type="number" inputmode="decimal" min="0" step="1" placeholder="es. 160">
+      <label for="rPaga">Paga oraria lorda (€)</label><input id="rPaga" type="number" inputmode="decimal" min="0" step="0.00001" placeholder="es. 9,87654">
+      <label for="rStra">Maggiorazione straordinario (%)</label><input id="rStra" type="number" inputmode="decimal" min="0" step="1">
+      <label for="rFest">Maggiorazione festivi (%)</label><input id="rFest" type="number" inputmode="decimal" min="0" step="1">
+      <label for="rDom">Domenica pagata come festivo</label><input id="rDom" type="checkbox" class="chk">
+      <label for="rLoc">Festività locali<small>es. santo patrono: 24/06</small></label><input id="rLoc" class="lungo" placeholder="gg/mm">
+      <label for="rTratt">Trattenute stimate per il netto (%)</label><input id="rTratt" type="number" inputmode="decimal" min="0" max="90" step="1">
+    </div>
+    <div class="riga"><button class="btn pri" id="salvaRegole">Salva</button></div>
+    <p class="hint">Le festività nazionali (Pasqua, Pasquetta, 25 aprile, San Francesco dal 2026…) sono già incluse.</p>
+    </section>
+
+    <section class="sez" id="ferieBox" hidden>
+    <h3>🏖️ Ferie</h3>
+    <div class="campi">
+      <label for="fUnita">Conta le ferie in<small>come sono indicate in busta paga</small></label><select id="fUnita" class="campo"><option value="giorni">giorni</option><option value="ore">ore</option></select>
+      <label for="fAnno" id="fAnnoLbl">Ferie all'anno</label><input id="fAnno" type="number" inputmode="decimal" min="0" step="0.5">
+      <label for="fResiduo" id="fResLbl">Residuo dell'anno prima</label><input id="fResiduo" type="number" inputmode="decimal" min="0" step="0.5">
+      <label for="fOre">Ore pagate per giorno di ferie<small>vengono anche scalate, se conti in ore</small></label><input id="fOre" type="number" inputmode="decimal" min="0" max="24" step="0.5">
+      <label for="fSab">Il sabato conta come ferie<small>togli la spunta se fai la settimana corta (lun–ven)</small></label><input id="fSab" type="checkbox" class="chk">
+    </div>
+    <div class="riga"><button class="btn pri" id="salvaFerie">Salva</button></div>
+    <p class="hint">Domeniche e festività non contano mai come giorni di ferie.</p>
+    </section>
+
+    <section class="sez" id="calBox">
+    <h3>📅 Google Calendar</h3>
+    <div class="calstato" id="calStato">Tocca «Controlla» per vedere lo stato del calendario.</div>
+    <div class="riga">
+      <button class="btn" id="calControlla">Controlla</button>
+      <button class="btn" id="calRipara">Ricrea gli eventi</button>
+    </div>
+    <div class="riga"><button class="btn pri" id="calProva">📅 Prova ora: crea un evento di prova</button></div>
+    <div class="calstato" id="calProvaEsito" hidden></div>
+    <a class="calapri" id="calApri" target="_blank" rel="noopener" hidden>Apri il calendario in Google Calendar ↗</a>
+    <p class="hint">Sul telefono, nell'app Google Calendar: menu ☰ → spunta <b>«Turni lavoro»</b>. Se non compare: Impostazioni → Turni lavoro → attiva <b>Sincronizza</b>.
+      Con il Calendario di iPhone: Calendari → spunta «Turni lavoro».</p>
+    </section>
+
+    <section class="sez" id="turniBox">
+    <h3>🎨 I miei turni</h3>
+    <div class="tlista" id="tLista"></div>
+    <div class="riga"><button class="btn pri" id="nuovoTipo">+ Nuovo turno</button></div>
+    <p class="hint">Tocca un turno per cambiare nome, sigla, icona, colore e orari. Le modifiche valgono anche per i turni già inseriti da oggi in avanti.</p>
+    </section>
+  </details>
+
+  <div class="account" id="account" hidden>
+    <a id="linkFoglio" target="_blank" rel="noopener" hidden>📄 Apri il mio foglio su Drive</a>
+    <a id="linkBuste" target="_blank" rel="noopener" hidden>📂 Archivio buste paga</a>
+    <a id="cambiaAccount" target="_top" hidden>Cambia account</a>
+  </div>
+  <div class="firma"><img alt="" id="firmaLogo"><b>Strafobico</b><span>App ideata da Stefano Tanca</span></div>
+</div>
+
+<div class="barra" id="barra">
+  <div class="in">
+    <span class="cnt" id="cnt">0 giorni</span>
+    <button class="btn" id="annullaSel">Annulla</button>
+    <button class="btn pri" id="aggiungi" disabled>Aggiungi turni</button>
+  </div>
+</div>
+
+<!-- menu turni -->
+<div class="velo" id="velo">
+  <div class="foglio" role="dialog" aria-modal="true">
+    <div id="passo1">
+      <h2 id="fTitolo"></h2>
+      <div class="sotto" id="fSotto"></div>
+      <div class="scelte" id="fScelte"></div>
+      <button class="nuovo-turno" id="fNuovo">+ Crea un nuovo tipo di turno</button>
+      <div class="riga">
+        <button class="btn" id="fChiudi">Chiudi</button>
+        <button class="btn pri" id="fConferma">Conferma</button>
+      </div>
+    </div>
+    <div id="passo2" hidden>
+      <h2 id="oTitolo">Quante ore di corso?</h2>
+      <div class="sotto" id="oSotto"></div>
+      <div class="ore">
+        <button id="meno" aria-label="Meno mezz'ora">−</button>
+        <input id="oreIn" type="number" inputmode="decimal" min="0.5" max="24" step="0.5">
+        <button id="piu" aria-label="Più mezz'ora">+</button>
+      </div>
+      <div class="rapide" id="rapide"></div>
+      <div class="riga">
+        <button class="btn" id="oIndietro">Indietro</button>
+        <button class="btn pri" id="oSalva">Salva</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- editor tipo di turno -->
+<div class="velo" id="ed">
+  <div class="foglio" role="dialog" aria-modal="true">
+    <h2 id="edTitolo">Nuovo turno</h2>
+    <div class="modelli" id="edModelli"></div>
+    <div class="anteprima"><span class="chipbig" id="edChip"></span><span id="edAnt"></span></div>
+    <div class="doppio">
+      <label class="lbl">Nome<input class="campo" id="edNome" maxlength="30" placeholder="es. Notte"></label>
+      <label class="lbl">Sigla<input class="campo" id="edSigla" maxlength="3" placeholder="N" style="text-transform:uppercase"></label>
+    </div>
+    <span class="lbl">Che tipo di turno è?</span>
+    <div class="cat" id="edCat"></div>
+    <div id="edOrari" class="tripla">
+      <label class="lbl">Inizio<input class="campo" type="time" id="edInizio"></label>
+      <label class="lbl">Fine<input class="campo" type="time" id="edFine"></label>
+      <label class="lbl">Pausa (min)<input class="campo" type="number" min="0" step="5" id="edPausa"></label>
+    </div>
+    <label class="lbl" id="edOreBox">
+      <span id="edOreLbl">Ore</span><input class="campo" type="number" inputmode="decimal" min="0" max="24" step="0.5" id="edOre">
+    </label>
+    <span class="lbl">Icona</span>
+    <div class="icone" id="edIcone"></div>
+    <span class="lbl">Colore (uguale in Google Calendar)</span>
+    <div class="colori" id="edColori"></div>
+    <div class="msgerr" id="edErr" hidden></div>
+    <div class="riga">
+      <button class="btn ross" id="edElimina" hidden>Elimina</button>
+      <button class="btn" id="edAnnulla">Annulla</button>
+      <button class="btn pri" id="edSalva">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- benvenuto -->
+<div class="velo" id="benv">
+  <div class="foglio" role="dialog" aria-modal="true">
+    <h2>👋 Benvenuto!</h2>
+    <div class="sotto" id="benvAcc"></div>
+    <div class="det-lista benv">
+      <div class="det-r"><span class="bi">📁</span><span><span class="tx2">Google Drive</span><br><span class="tx" id="benvDrive"></span></span></div>
+      <div class="det-r"><span class="bi">📅</span><span><span class="tx2">Google Calendar</span><br><span class="tx">calendario «Turni lavoro»</span></span></div>
+    </div>
+    <p class="hint">Tutto resta nel tuo account Google. Prima di iniziare puoi personalizzare i tuoi turni e la paga (anche più tardi).</p>
+    <div class="riga"><button class="btn" id="benvTurni">🎨 I miei turni</button><button class="btn" id="benvPaga">💶 Paga e ore</button></div>
+    <div class="riga"><button class="btn pri" id="benvVia">Inizia</button></div>
+  </div>
+</div>
+
+<!-- periodo di ferie -->
+<div class="velo" id="fer">
+  <div class="foglio" role="dialog" aria-modal="true">
+    <h2>🏖️ Segna ferie</h2>
+    <div class="sotto">Scegli il primo e l'ultimo giorno. Le ferie vanno solo nei giorni che contano (non domeniche e festività); i turni già presenti in quei giorni vengono tolti.</div>
+    <div class="date2">
+      <label>Dal<input class="campo" type="date" id="ferDal"></label>
+      <label>Al<input class="campo" type="date" id="ferAl"></label>
+    </div>
+    <div class="riass fant" id="ferAnt" style="margin-top:12px"></div>
+    <div class="riga"><button class="btn" id="ferChiudi">Annulla</button><button class="btn pri" id="ferOk">Segna ferie</button></div>
+  </div>
+</div>
+
+<!-- busta paga -->
+<div class="velo" id="bp">
+  <div class="foglio" role="dialog" aria-modal="true">
+    <div id="bp1">
+      <h2>📄 Busta paga</h2>
+      <div class="sotto">Carica il PDF della busta paga (va bene anche una foto). La leggo sul telefono, ti mostro cosa ho trovato e, quando confermi,
+        la archivio nel tuo Drive in <b>AppTurni › Strafobico › Buste paga › anno</b> e aggiorno ferie e compensi.</div>
+      <input class="file" type="file" id="bpFile" accept="application/pdf,image/*">
+      <div class="riga">
+        <button class="btn" id="bpChiudi">Chiudi</button>
+        <label class="btn pri" for="bpFile">Scegli la busta paga</label>
+      </div>
+      <a class="calapri" id="bpArchivio" target="_blank" rel="noopener" hidden>📂 Apri l'archivio delle buste paga ↗</a>
+    </div>
+    <div id="bp2" hidden>
+      <h2>Leggo la busta paga…</h2>
+      <div class="prog"><i id="bpBar"></i></div>
+      <div class="sotto" id="bpFase">Preparazione…</div>
+    </div>
+    <div id="bp3" hidden>
+      <h2>Controlla i valori</h2>
+      <div class="sotto" id="bpSotto"></div>
+      <div class="bpcampi">
+        <label for="bpMese">Mese della busta paga</label><input id="bpMese" type="month">
+        <label for="bpLordo">Totale competenze (lordo) €</label><input id="bpLordo" type="number" inputmode="decimal" step="0.01">
+        <label for="bpTratt">Totale trattenute €</label><input id="bpTratt" type="number" inputmode="decimal" step="0.01">
+        <label for="bpNetto">Netto in busta €</label><input id="bpNetto" type="number" inputmode="decimal" step="0.01">
+        <label for="bpFerie">Ferie residue (saldo)<small>quelle che restano a fine mese</small></label><input id="bpFerie" type="number" inputmode="decimal" step="0.01">
+        <label for="bpUnita">Ferie indicate in</label><select id="bpUnita"><option value="ore">ore</option><option value="giorni">giorni</option></select>
+      </div>
+      <label class="bpchk"><input type="checkbox" id="bpAggFerie" checked><span>Usa il saldo ferie della busta per il conteggio delle ferie</span></label>
+      <label class="bpchk"><input type="checkbox" id="bpAggTratt" checked><span>Aggiorna le trattenute stimate (<b id="bpTrattPerc"></b>) per calcolare meglio il netto dei prossimi mesi</span></label>
+      <details class="letto"><summary>Mostra il testo letto</summary><pre id="bpTesto"></pre></details>
+      <div class="msgerr" id="bpErr" hidden></div>
+      <div class="riga"><button class="btn" id="bpAnnulla">Annulla</button><button class="btn pri" id="bpSalva">Archivia e aggiorna</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- dettagli del riepilogo -->
+<div class="velo" id="det">
+  <div class="foglio" role="dialog" aria-modal="true">
+    <div class="det-head"><span id="detIco"></span><h2 id="detTitolo"></h2></div>
+    <div class="det-tot" id="detTot"></div>
+    <div class="det-reg" id="detReg"></div>
+    <div id="detCorpo"></div>
+    <div class="riga"><button class="btn" id="detChiudi">Chiudi</button></div>
+  </div>
+</div>
+
+<!-- importazione da immagine -->
+<div class="velo" id="imp">
+  <div class="foglio" role="dialog" aria-modal="true">
+    <div id="imp1">
+      <h2>Importa i turni da una foto</h2>
+      <div class="sotto">I turni verranno messi in <b id="impMese"></b>. Se la tabella è di un altro mese, chiudi e cambia mese con le frecce.</div>
+      <label class="lbl" for="impNome">Il tuo nome com'è scritto nella tabella</label>
+      <input class="campo" id="impNome" placeholder="es. Bianchi Chiara" autocomplete="off">
+      <input class="file" type="file" id="impFile" accept="image/*">
+      <div class="riga">
+        <button class="btn" id="impChiudi">Chiudi</button>
+        <label class="btn pri" for="impFile" id="impScegli">Scegli immagine</label>
+      </div>
+      <p class="hint">Va bene uno screenshot o una foto dritta e nitida della tabella. La lettura avviene sul tuo dispositivo: l'immagine non viene inviata a nessuno. La prima volta scarica il lettore (qualche MB).</p>
+    </div>
+    <div id="imp2" hidden>
+      <h2>Leggo la tabella…</h2>
+      <div class="prog"><i id="impBar"></i></div>
+      <div class="sotto" id="impFase">Preparazione…</div>
+    </div>
+    <div id="imp3" hidden>
+      <h2>Non ci sono riuscito</h2>
+      <div class="msgerr" id="impErr"></div>
+      <details class="letto"><summary>Mostra cosa ho letto (utile per capire il problema)</summary><pre class="lettoTesto"></pre></details>
+      <div id="impNomiBox" hidden>
+        <span class="lbl">Nomi che ho letto nella tabella: tocca il tuo</span>
+        <div class="nomi" id="impNomi"></div>
+      </div>
+      <div class="riga">
+        <button class="btn" id="impChiudi2">Chiudi</button>
+        <label class="btn pri" for="impFile">Scegli un'altra immagine</label>
+      </div>
+    </div>
+    <div id="imp4" hidden>
+      <h2>Tabella letta ✓</h2>
+      <div class="riass" id="impRiass"></div>
+      <details class="letto"><summary>Mostra cosa ho letto</summary><pre class="lettoTesto"></pre></details>
+      <div id="impOreBox" hidden>
+        <label class="lbl" for="impOre">Ore per ogni corso</label>
+        <input class="campo" id="impOre" type="number" inputmode="decimal" min="0.5" max="24" step="0.5">
+      </div>
+      <div class="riga">
+        <button class="btn" id="impChiudi3">Annulla</button>
+        <button class="btn pri" id="impVedi">Controlla nel calendario</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const MESI = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+  const GG = ['lun','mar','mer','gio','ven','sab','dom'];
+  const GGL = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
+  const $ = id => document.getElementById(id);
+  const oggi = new Date();
+  let anno = oggi.getFullYear(), mese = oggi.getMonth() + 1;
+  let tipi = [], tutti = [], perNome = {}, giorni = {}, festivi = [], festivita = {}, riep = null, nomeTab = '', dettaglio = [], regole = null;
+  let modifiche = {}, inViaggio = null, timer = null, richiesta = 0;
+  let selezionati = new Set(), bersagli = [], scelti = [], codaOre = [], oreScelte = {};
+  let proposta = null, dubbi = new Set();
+  let oreAperto = false, soldiNascosti = false, urlApp = '';
+  let ferie = null; // { nome, oreGiorno, date: [giorni di ferie dell'anno] } — null se non c'è un tipo "Ferie"
+  let busta = null;  // busta paga caricata per il mese mostrato: { mese, lordo, netto, trattenute, link }
+
+  const pad = n => String(n).padStart(2, '0');
+  const iso = (y, m, d) => y + '-' + pad(m) + '-' + pad(d);
+  const OGGI = iso(oggi.getFullYear(), oggi.getMonth() + 1, oggi.getDate());
+  const fmtOre = n => (Math.round(n * 100) / 100).toLocaleString('it-IT');
+  const ore = n => fmtOre(n) + ' h';
+  const euro = n => n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+  const euroPaga = n => (+n || 0).toLocaleString('it-IT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 5 });
+  const variabile = nome => { const t = perNome[String(nome).toLowerCase()]; return !!t && t.cat === 'Ore variabili'; };
+  const attuale = d => (proposta && d in proposta) ? proposta[d]
+    : (d in modifiche) ? modifiche[d] : (inViaggio && d in inViaggio) ? inViaggio[d] : (giorni[d] || []);
+  const chiave = lista => JSON.stringify(lista.map(v => [v.nome, v.ore == null ? null : +v.ore]));
+
+  /* ================= icone ================= */
+  const ICONE = {
+    ore: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
+    stra: '<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5"/><path d="M3.6 7.6a3.3 3.3 0 0 1 4.1-4.1M16.3 3.5a3.3 3.3 0 0 1 4.1 4.1"/><path d="M7.4 19.4 5.8 21.5M16.6 19.4l1.6 2.1"/><path d="M8.5 11.9q1.2 1.1 2.4 0M13.1 11.9q1.2 1.1 2.4 0"/><path d="M10 16.2q1 -.8 2 0t2 0"/><path d="M21.6 11.2c-.6.9-1 1.5-1 2a1 1 0 0 0 2 0c0-.5-.4-1.1-1-2z"/></svg>',
+    giorni: '<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/></svg>',
+    fest: '<svg viewBox="0 0 24 24"><path d="M4 20.5 8.6 8.2l7.7 7.7z"/><path d="M13.2 7.2c.4-1.6 1.8-2.7 3.5-2.6M17.3 11.3c1.5-.6 3-.2 4 .9"/><path d="M14.3 3h.01M20.4 7.4h.01M19.4 15.6h.01M10.8 4.6h.01"/></svg>',
+    corso: '<svg viewBox="0 0 24 24"><path d="M2.5 9.5 12 5l9.5 4.5L12 14z"/><path d="M6.5 11.6V16c0 1.3 2.5 2.8 5.5 2.8s5.5-1.5 5.5-2.8v-4.4"/><path d="M21.5 9.5v5"/></svg>',
+    oreSudato: '<svg viewBox="0 0 24 24"><circle cx="12" cy="14.2" r="7.4"/><path d="M12 10.6v3.6l2.7 1.6"/><g fill="currentColor" stroke="none"><path transform="translate(4.6 4.6) rotate(-35)" d="M0-2.6c-.75 1.1-1.25 1.85-1.25 2.45a1.25 1.25 0 0 0 2.5 0c0-.6-.5-1.35-1.25-2.45z"/><path transform="translate(12 3.1)" d="M0-2.6c-.75 1.1-1.25 1.85-1.25 2.45a1.25 1.25 0 0 0 2.5 0c0-.6-.5-1.35-1.25-2.45z"/><path transform="translate(19.4 4.6) rotate(35)" d="M0-2.6c-.75 1.1-1.25 1.85-1.25 2.45a1.25 1.25 0 0 0 2.5 0c0-.6-.5-1.35-1.25-2.45z"/></g></svg>',
+    occhio: '<svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+    occhioNo: '<svg viewBox="0 0 24 24"><path d="M9.9 5.7A9.6 9.6 0 0 1 12 5.5C18.4 5.5 22 12 22 12a17 17 0 0 1-2.6 3.4M6.2 7.2C3.6 9 2 12 2 12s3.6 6.5 10 6.5c1.6 0 3-.4 4.3-1M3 3l18 18"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
+    conta: '<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M7.5 8h2M7.5 12h2M7.5 16h2M12 8h4.5M12 12h4.5M12 16h4.5"/></svg>',
+    soldi: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.4 8.7a4.1 4.1 0 1 0 0 6.6M7.2 10.9h6M7.2 13.2h6"/></svg>',
+  };
+  const icona = (k, cls, colore) => '<span class="ico c-' + (colore || k) + (cls ? ' ' + cls : '') + '">' + ICONE[k] + '</span>';
+
+  /* ================= collegamento a Google (o anteprima) ================= */
+  const DEMO = !(window.google && google.script && google.script.run);
+
+  function chiama(fn, ...args) {
+    if (DEMO) return new Promise((ok, ko) => setTimeout(() => { try { ok(FINTO[fn](...args)); } catch (e) { ko(e); } }, 150));
+    return new Promise((ok, ko) => google.script.run.withSuccessHandler(ok).withFailureHandler(ko)[fn](...args));
+  }
+
+  // Simulazione locale usata solo nell'anteprima (fuori da Google)
+  const FINTO = (() => {
+    const tipiF = [
+      { nome:'Mattino', sigla:'M', cat:'Lavoro', colCal:5, colore:'#F6BF26', testo:'#000000', inizio:'08:00', fine:'13:00', pausa:0, oreDef:0, icona:'☀️', attivo:true },
+      { nome:'Pomeriggio', sigla:'P', cat:'Lavoro', colCal:6, colore:'#F4511E', testo:'#ffffff', inizio:'14:00', fine:'19:00', pausa:0, oreDef:0, icona:'🌇', attivo:true },
+      { nome:'Corso', sigla:'C', cat:'Ore variabili', colCal:3, colore:'#8E24AA', testo:'#ffffff', inizio:'', fine:'', pausa:0, oreDef:4, icona:'📚', attivo:true },
+      { nome:'Ferie', sigla:'F', cat:'Retribuita', colCal:10, colore:'#0B8043', testo:'#ffffff', inizio:'', fine:'', pausa:0, oreDef:6, icona:'🏖️', attivo:true, ferie:true },
+    ];
+    const archivio = {};
+    let nomeF = '', primo = false;
+    const min = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+    function oreTurno(v) {
+      const t = tipiF.find(x => x.nome === v.nome); if (!t) return 0;
+      if (t.cat === 'Ore variabili') return +v.ore || t.oreDef;
+      if (t.cat === 'Retribuita') return t.oreDef || 0;
+      if (t.cat !== 'Lavoro') return 0;
+      let f = min(t.fine), i = min(t.inizio); if (f <= i) f += 1440;
+      return Math.max(0, f - i - t.pausa) / 60;
+    }
+    const R = { paga: 10, pStra: 0.25, pFest: 0.3, oreMese: 0, tratt: 0.3, domenica: true, locali: '', ferieAnno: 26, ferieResiduo: 0, ferieUnita: 'giorni', ferieSabato: true, ferieSaldo: null, ferieSaldoMese: '' };
+    const buste = {};
+    function pasquaF(y) {
+      const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4;
+      const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+      const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+      return new Date(y, Math.floor((h + l - 7 * m + 114) / 31) - 1, ((h + l - 7 * m + 114) % 31) + 1);
+    }
+    function festaF(y, m, d) {
+      const md = pad(m) + '-' + pad(d);
+      const fisse = { '01-01':'Capodanno', '01-06':'Epifania', '04-25':'Festa della Liberazione', '05-01':'Festa del Lavoro', '06-02':'Festa della Repubblica',
+        '08-15':'Ferragosto', '11-01':'Ognissanti', '12-08':'Immacolata Concezione', '12-25':'Natale', '12-26':'Santo Stefano' };
+      if (fisse[md]) return fisse[md];
+      if (y >= 2026 && md === '10-04') return 'San Francesco d\'Assisi';
+      const p = pasquaF(y), pq = new Date(y, p.getMonth(), p.getDate() + 1);
+      if (p.getMonth() + 1 === m && p.getDate() === d) return 'Pasqua';
+      if (pq.getMonth() + 1 === m && pq.getDate() === d) return 'Lunedì dell\'Angelo (Pasquetta)';
+      return null;
+    }
+    function meseF(a, m) {
+      const pref = a + '-' + pad(m), g = {}, festivi = [], festivita = {};
+      const r = { giorniLav:0, ore:0, ord:0, stra:0, festive:0, corso:0, assenze:0, lordo:0, netto:0, e: { ord:0, stra:0, fest:0, ass:0 } };
+      for (let d = 1; d <= new Date(a, m, 0).getDate(); d++) {
+        const k = iso(a, m, d), nf = festaF(a, m, d);
+        if (nf) festivita[k] = nf;
+        if (nf || (R.domenica && new Date(a, m - 1, d).getDay() === 0)) festivi.push(k);
+      }
+      const dettaglio = []; let usato = 0;
+      Object.keys(archivio).filter(k => k.startsWith(pref)).sort().forEach(k => {
+        g[k] = archivio[k]; const f = festivi.includes(k); let tot = 0;
+        archivio[k].forEach(v => {
+          const t = tipiF.find(x => x.nome === v.nome); if (!t) return;
+          if (t.cat !== 'Lavoro' && t.cat !== 'Ore variabili') {
+            const ha = t.cat === 'Retribuita' ? (t.oreDef || 0) : 0, e = { ord: 0, stra: 0, fest: 0, ass: R.paga * ha };
+            r.assenze += ha; r.e.ass += e.ass; r.lordo += e.ass;
+            dettaglio.push({ date: k, nome: t.nome, sigla: t.sigla, cat: t.cat, inizio: '', fine: '', ore: ha, ord: ha, stra: 0, fest: f, lordo: e.ass, e });
+            return;
+          }
+          const h = oreTurno(v), ord = Math.min(h, R.oreMese > 0 ? Math.max(0, R.oreMese - usato) : Infinity), stra = h - ord;
+          usato += h; tot += h;
+          const e = { ord: R.paga * ord, stra: R.paga * stra * (1 + R.pStra), fest: f ? R.paga * h * R.pFest : 0, ass: 0 };
+          Object.keys(e).forEach(x => { r.e[x] += e[x]; });
+          r.ord += ord; r.stra += stra; if (t.cat === 'Ore variabili') r.corso += h; if (f) r.festive += h;
+          r.lordo += e.ord + e.stra + e.fest;
+          dettaglio.push({ date: k, nome: t.nome, sigla: t.sigla, cat: t.cat, inizio: t.cat === 'Lavoro' ? t.inizio : '', fine: t.cat === 'Lavoro' ? t.fine : '',
+            ore: h, ord, stra, fest: f, lordo: e.ord + e.stra + e.fest, e });
+        });
+        if (tot > 0) r.giorniLav++;
+        r.ore += tot;
+      });
+      r.netto = r.lordo * (1 - R.tratt);
+      const tf = tipiF.find(t => t.ferie);
+      const ferie = tf ? { nome: tf.nome, oreGiorno: tf.oreDef, date: Object.keys(archivio).filter(k => k.startsWith(a + '-') && archivio[k].some(v => v.nome === tf.nome)).sort() } : null;
+      return { giorni: g, festivi, festivita, riepilogo: r, dettaglio, regole: Object.assign({}, R), ferie, busta: buste[pref] || null };
+    }
+    const copiaTipi = () => tipiF.map(t => Object.assign({}, t));
+    return {
+      datiIniziali: (a, m) => { const r = Object.assign(meseF(a, m), { tipi: copiaTipi(), nomeTab: nomeF, ssUrl: '', cartella: 'AppTurni › Strafobico', email: 'anteprima@esempio.it', nuovo: !primo }); primo = true; return r; },
+      salvaTipo: (t, orig, a, m) => {
+        const hex = HEX_COL[t.colCal] || '#9aa0a6';
+        const nuovo = { nome: t.nome, sigla: t.sigla.toUpperCase(), cat: t.cat, colCal: +t.colCal, colore: hex, testo: coloreTesto(hex), icona: t.icona, attivo: true,
+          inizio: t.cat === 'Lavoro' ? t.inizio : '', fine: t.cat === 'Lavoro' ? t.fine : '', pausa: t.cat === 'Lavoro' ? +t.pausa || 0 : 0, oreDef: +t.ore || 0 };
+        const i = orig ? tipiF.findIndex(x => x.nome === orig) : -1;
+        if (i >= 0) {
+          tipiF[i] = nuovo;
+          Object.keys(archivio).forEach(k => { archivio[k] = archivio[k].map(v => v.nome === orig ? Object.assign({}, v, { nome: t.nome }) : v); });
+        } else tipiF.push(nuovo);
+        return Object.assign(meseF(a, m), { tipi: copiaTipi() });
+      },
+      eliminaTipo: (nome, a, m) => {
+        const usato = Object.values(archivio).some(l => l.some(v => v.nome === nome)), i = tipiF.findIndex(x => x.nome === nome);
+        if (usato) tipiF[i].attivo = false; else tipiF.splice(i, 1);
+        return Object.assign(meseF(a, m), { tipi: copiaTipi(), esito: usato ? 'nascosto' : 'eliminato' });
+      },
+      datiMese: meseF,
+      salvaGiorni: (mod, a, m) => { Object.keys(mod).forEach(k => { if (mod[k].length) archivio[k] = mod[k]; else delete archivio[k]; }); return meseF(a, m); },
+      salvaOrari: (lista, a, m) => { lista.forEach(o => { const t = tipiF.find(x => x.nome === o.nome); if (t) Object.assign(t, { inizio:o.inizio, fine:o.fine, pausa:+o.pausa || 0 }); });
+        return Object.assign(meseF(a, m), { tipi: copiaTipi() }); },
+      salvaImpostazioneUtente: (k, v) => { nomeF = v; return true; },
+      salvaPreferenza: () => true,
+      sincronizzaCalendario: () => ({ restano: 0 }),
+      statoCalendario: () => ({ nome: 'Turni lavoro', id: '', visibile: true, turni: Object.values(archivio).reduce((a, l) => a + l.length, 0), conEvento: Object.values(archivio).reduce((a, l) => a + l.length, 0), inAttesa: 0, errore: '' }),
+      riparaCalendario: () => ({ restano: 0, creati: 0 }),
+      provaCalendario: () => ({ ok: true, email: 'anteprima@esempio.it', calNome: 'Turni lavoro', calId: 'x', linkCal: '#', linkEvento: '#' }),
+      eliminaProvaCalendario: () => true,
+      salvaBustaPaga: (d, b64, a, m) => {
+        buste[d.mese] = { mese: d.mese, lordo: +d.lordo || 0, netto: +d.netto || 0, trattenute: +d.trattenute || 0, link: '#' };
+        if (d.aggFerie && d.ferie !== '' && d.ferie != null) {
+          if (d.unita !== R.ferieUnita) { const og = (tipiF.find(t => t.ferie) || {}).oreDef || 8, k = d.unita === 'ore' ? og : 1 / og; R.ferieAnno = Math.round(R.ferieAnno * k * 100) / 100; R.ferieResiduo = Math.round(R.ferieResiduo * k * 100) / 100; R.ferieUnita = d.unita; }
+          R.ferieSaldo = +d.ferie; R.ferieSaldoMese = d.mese; }
+        if (d.aggTratt && +d.lordo > 0 && +d.netto > 0) R.tratt = Math.round((1 - d.netto / d.lordo) * 1000) / 1000;
+        return Object.assign(meseF(a, m), { archivio: '#', file: '#' });
+      },
+      salvaRegole: (x, a, m) => {
+        R.oreMese = +x.oreMese || 0; R.paga = +x.paga || 0; R.pStra = (+x.pStra || 0) / 100; R.pFest = (+x.pFest || 0) / 100;
+        R.tratt = (+x.tratt || 0) / 100; R.domenica = !!x.domenica; R.locali = x.locali || '';
+        if (x.ferieAnno != null) { R.ferieAnno = +x.ferieAnno || 0; R.ferieResiduo = +x.ferieResiduo || 0; R.ferieUnita = x.ferieUnita === 'ore' ? 'ore' : 'giorni'; R.ferieSabato = !!x.ferieSabato;
+          const tf = tipiF.find(t => t.ferie); if (tf && +x.ferieOre >= 0) tf.oreDef = +x.ferieOre; }
+        return Object.assign(meseF(a, m), { tipi: copiaTipi() });
+      },
+    };
+  })();
+
+  /* ================= utilità di interfaccia ================= */
+  function stato(t, cls) { const s = $('stato'); s.textContent = t; s.className = 'stato' + (cls ? ' ' + cls : ''); }
+  function avviso(t) { const a = $('avviso'); a.textContent = t || ''; a.classList.toggle('on', !!t); }
+  function msgErr(e) { return (e && e.message) ? e.message : String(e); }
+  function applica(r, daMemoria) {
+    giorni = r.giorni || {}; festivi = r.festivi || []; festivita = r.festivita || {}; riep = r.riepilogo; dettaglio = r.dettaglio || [];
+    if ('ferie' in r) ferie = r.ferie;
+    busta = r.busta || null;
+    if (r.regole) { const prima = !regole; regole = r.regole; if (prima) riempiRegole(); }
+    $('apriFerie').hidden = $('ferieBox').hidden = !ferie;
+    if (!daMemoria) ricordaMese(anno, mese, r);
+  }
+
+  /* ================= memoria sul telefono: apertura istantanea ================= */
+  // Gli ultimi dati scaricati restano sul dispositivo: all'apertura si vedono subito,
+  // poi vengono aggiornati da Google in sottofondo. Solo comodità: se manca, si carica da Google.
+  const MEMORIA = 'appturni_v3';
+  function leggiMemoria() {
+    if (DEMO) return null;
+    try { return JSON.parse(localStorage.getItem(MEMORIA) || 'null'); } catch (e) { return null; }
+  }
+  function scriviMemoria(fn) {
+    if (DEMO) return;
+    try {
+      const m = leggiMemoria() || { mesi: {} };
+      fn(m);
+      const chiavi = Object.keys(m.mesi || {}).sort();
+      while (chiavi.length > 6) delete m.mesi[chiavi.shift()]; // tiene gli ultimi 6 mesi visti
+      localStorage.setItem(MEMORIA, JSON.stringify(m));
+    } catch (e) { }
+  }
+  function ricordaMese(a, m, r) {
+    scriviMemoria(x => {
+      x.mesi = x.mesi || {};
+      x.mesi[a + '-' + pad(m)] = { giorni: r.giorni, festivi: r.festivi, festivita: r.festivita, riepilogo: r.riepilogo, dettaglio: r.dettaglio, regole: r.regole, ferie: r.ferie, busta: r.busta };
+    });
+  }
+  function meseInMemoria(a, m) { const x = leggiMemoria(); return x && x.mesi ? x.mesi[a + '-' + pad(m)] : null; }
+
+  /* ================= stato di Google Calendar (Impostazioni) ================= */
+  function mostraStatoCal(st) {
+    const box = $('calStato');
+    if (!st) { box.textContent = 'Stato non disponibile.'; return; }
+    const righe = [
+      'Account Google in uso: <b>' + escapeHtml(st.email || 'sconosciuto') + '</b>',
+      'Calendario: <b>' + escapeHtml(st.nome) + '</b> ' + (st.visibile ? '<span class="ok">visibile ✓</span>' : '<span class="no">nascosto</span>'),
+      'Turni nel foglio: <b>' + st.turni + '</b> · con evento in calendario: <b>' + st.conEvento + '</b>',
+      st.inAttesa ? '<span class="no">In attesa di essere creati: ' + st.inAttesa + '</span>' : '<span class="ok">Tutto sincronizzato ✓</span>',
+    ];
+    if (st.errore) righe.push('<span class="no">Ultimo errore: ' + escapeHtml(st.errore) + '</span>');
+    box.innerHTML = righe.join('<br>');
+    if (st.id) { $('calApri').href = st.link || ('https://calendar.google.com/calendar/r?cid=' + encodeURIComponent(st.id)); $('calApri').hidden = false; }
+  }
+  async function provaCal() {
+    const box = $('calProvaEsito'); box.hidden = false; $('calProva').disabled = true;
+    box.textContent = 'Creo un evento di prova per oggi…';
+    try {
+      const r = await chiama('provaCalendario');
+      if (r && r.ok) {
+        box.innerHTML = '<span class="ok">✅ Evento «Prova Strafobico» creato oggi</span> nel calendario <b>' + escapeHtml(r.calNome) + '</b> dell\'account <b>' + escapeHtml(r.email || '?') + '</b>.<br>' +
+          '<a href="' + r.linkEvento + '" target="_blank" rel="noopener">Apri l\'evento ↗</a> · <a href="' + r.linkCal + '" target="_blank" rel="noopener">Apri il calendario ↗</a><br>' +
+          '<span class="tx">Non lo vedi sul telefono? Controlla che l\'app Calendar usi <b>lo stesso account</b> e che «Turni lavoro» sia spuntato.</span><br>' +
+          '<button class="btn" id="calProvaVia" style="margin-top:8px">Elimina l\'evento di prova</button>';
+        $('calProvaVia').onclick = async () => { await chiama('eliminaProvaCalendario').catch(() => {}); box.innerHTML = 'Evento di prova eliminato.'; };
+      } else {
+        box.innerHTML = '<span class="no">❌ Google Calendar ha risposto con un errore:</span><br>' + escapeHtml((r && r.errore) || 'sconosciuto') +
+          '<br><span class="tx">Account: ' + escapeHtml((r && r.email) || '?') + '. Mandami questo messaggio così capisco il problema.</span>';
+      }
+    } catch (e) { box.innerHTML = '<span class="no">❌ Errore:</span> ' + escapeHtml(msgErr(e)); }
+    $('calProva').disabled = false;
+    controllaCal();
+  }
+  async function controllaCal() {
+    $('calStato').textContent = 'Controllo in corso…';
+    try { mostraStatoCal(await chiama('statoCalendario')); } catch (e) { $('calStato').textContent = 'Errore: ' + msgErr(e); }
+  }
+  async function riparaCal() {
+    $('calRipara').disabled = true; $('calStato').textContent = 'Creo gli eventi dei turni da oggi in avanti…';
+    try {
+      let r = await chiama('riparaCalendario');
+      for (let i = 0; i < 8 && r && r.restano > 0 && !r.errore; i++) r = await chiama('sincronizzaCalendario');
+      mostraStatoCal(await chiama('statoCalendario'));
+      stato(r && r.errore ? 'Google Calendar: ' + r.errore : 'Eventi ricreati in Google Calendar ✓', r && r.errore ? 'err' : 'ok');
+    } catch (e) { $('calStato').textContent = 'Errore: ' + msgErr(e); }
+    $('calRipara').disabled = false;
+  }
+
+  /* ================= Google Calendar in sottofondo ================= */
+  let syncAttiva = false, syncAncora = false;
+  async function sincronizzaCalendario(silenzioso) {
+    if (DEMO) return;
+    if (syncAttiva) { syncAncora = true; return; }
+    syncAttiva = true;
+    try {
+      let errore = '';
+      for (let giro = 0; giro < 8; giro++) {
+        syncAncora = false;
+        const r = await chiama('sincronizzaCalendario');
+        if (r && r.errore) { errore = r.errore; break; }
+        if (!r || !(r.restano > 0)) { if (!syncAncora) break; }
+      }
+      if (errore) stato('Salvato nel foglio ✓ · Google Calendar: ' + errore, 'err');
+      else if (!silenzioso && !inViaggio && !Object.keys(modifiche).length) stato('Salvato ✓ Foglio e calendario aggiornati', 'ok');
+    } catch (e) {
+      if (!silenzioso) stato('Salvato ✓ (Google Calendar si aggiornerà appena possibile)', 'ok');
+    }
+    syncAttiva = false;
+  }
+  /** Tutti i tipi (anche nascosti, per mostrare i turni già inseriti); il menu usa solo quelli attivi. */
+  function setTipi(lista) {
+    if (lista && lista.length) scriviMemoria(x => { x.tipi = lista; });
+    tutti = (lista || []).map(t => Object.assign({ icona: '', attivo: true }, t));
+    tipi = tutti.filter(t => t.attivo !== false);
+    perNome = {};
+    tutti.forEach(t => { perNome[t.nome.toLowerCase()] = t; if (t.sigla && !perNome[t.sigla.toLowerCase()]) perNome[t.sigla.toLowerCase()] = t; });
+    renderTipi();
+  }
+  function orarioDi(t) {
+    if (t.cat === 'Lavoro') return t.inizio && t.fine ? t.inizio + ' – ' + t.fine + (t.pausa ? ' · pausa ' + t.pausa + ' min' : '') : 'orario da impostare';
+    if (t.cat === 'Ore variabili') return 'ti chiede quante ore';
+    if (t.cat === 'Retribuita') return 'assenza pagata · ' + fmtOre(t.oreDef || 0) + ' h';
+    if (t.cat === 'Non retribuita') return 'assenza non pagata';
+    if (t.cat === 'Riposo') return 'giorno libero';
+    return t.cat;
+  }
+  /** Testo del "chip" di un turno: icona + sigla (o ore, per i turni a ore variabili). */
+  function testoChip(t, ore) {
+    const ic = t && t.icona ? t.icona : '';
+    if (!t) return '';
+    if (ore != null && t.cat === 'Ore variabili') return (ic || t.sigla + ' ') + fmtOre(ore) + 'h';
+    return ic + t.sigla;
+  }
+  function descrivi(lista) {
+    return lista.map(v => v.ore != null && variabile(v.nome) ? v.nome + ' ' + fmtOre(v.ore) + ' h' : v.nome).join(' + ');
+  }
+  function dataLunga(k) {
+    const [y, m, d] = k.split('-').map(Number);
+    return GGL[new Date(y, m - 1, d).getDay()] + ' ' + d + ' ' + MESI[m - 1];
+  }
+
+  /* ================= caricamento ================= */
+  async function avvio() {
+    $('demo').classList.toggle('on', DEMO);
+    const mem = leggiMemoria(), mm = meseInMemoria(anno, mese);
+    if (mem && mem.tipi) {
+      setTipi(mem.tipi);
+      nomeTab = mem.nomeTab || ''; soldiNascosti = !!mem.nascondiSoldi;
+      if (mm) applica(mm, true);
+      if (mem.conto) mostraAccount(mem.conto);
+      if (mem.conto && mem.conto.ssUrl) { $('linkFoglio').href = mem.conto.ssUrl; $('linkFoglio').hidden = false; }
+      render(); stato('Aggiornamento…');
+      chiudiSplash();
+    } else {
+      render();
+      stato('Caricamento… (al primo accesso preparo cartella, foglio e calendario: qualche secondo)');
+    }
+    const mia = ++richiesta;
+    try {
+      const r = await chiama('datiIniziali', anno, mese);
+      setTipi(r.tipi);
+      nomeTab = r.nomeTab || '';
+      soldiNascosti = !!r.nascondiSoldi;
+      if (r.ssUrl) { $('linkFoglio').href = r.ssUrl; $('linkFoglio').hidden = false; }
+      if (r.linkBuste) { linkBuste = r.linkBuste; $('linkBuste').href = linkBuste; $('linkBuste').hidden = false; }
+      mostraAccount(r);
+      if (r.nuovo) apriBenvenuto(r);
+      suggerisciHome(r.suggHome);
+      if (mia === richiesta) applica(r);
+      if (!tipi.length) avviso('Non hai ancora nessun turno: crealo da «🎨 I miei turni» in fondo alla pagina.');
+      scriviMemoria(x => { x.tipi = r.tipi; x.nomeTab = r.nomeTab; x.nascondiSoldi = r.nascondiSoldi;
+        x.conto = { email: r.email, cartella: r.cartella, urlApp: r.urlApp, ssUrl: r.ssUrl }; });
+      render(); stato('');
+      sincronizzaCalendario(true); // completa eventuali eventi rimasti in sospeso
+    } catch (e) {
+      stato('');
+      if (mem && mem.tipi) { stato('Senza connessione: mostro gli ultimi dati salvati sul telefono', 'err'); return; }
+      avviso('Non riesco a caricare i tuoi turni: ' + msgErr(e) + '. Ricarica la pagina; se il problema resta, controlla di aver dato il consenso a Google.');
+    }
+  }
+
+  async function cambiaMese(delta) {
+    if (proposta) return;
+    salvaSubito();
+    selezionati.clear(); aggiornaBarra();
+    mese += delta;
+    if (mese < 1) { mese = 12; anno--; }
+    if (mese > 12) { mese = 1; anno++; }
+    const mm = meseInMemoria(anno, mese);
+    if (mm) applica(mm, true); else { riep = null; giorni = {}; dettaglio = []; }
+    render();
+    const mia = ++richiesta;
+    try { const r = await chiama('datiMese', anno, mese); if (mia === richiesta) { applica(r); render(); } }
+    catch (e) { stato('Errore: ' + msgErr(e), 'err'); }
+  }
+
+  /* ================= calendario ================= */
+  function render() {
+    $('titolo').textContent = MESI[mese - 1] + ' ' + anno;
+    $('prev').disabled = $('next').disabled = !!proposta;
+    const g = $('grid'); g.innerHTML = '';
+    GG.forEach(x => { const e = document.createElement('div'); e.className = 'dow'; e.textContent = x; g.appendChild(e); });
+    const primo = (new Date(anno, mese - 1, 1).getDay() + 6) % 7, n = new Date(anno, mese, 0).getDate();
+    for (let i = 0; i < primo; i++) { const e = document.createElement('div'); e.className = 'd vuoto'; g.appendChild(e); }
+    for (let d = 1; d <= n; d++) {
+      const k = iso(anno, mese, d), e = document.createElement('div');
+      e.className = 'd';
+      if (k === OGGI) e.classList.add('oggi');
+      if (festivi.includes(k)) e.classList.add('fest');
+      const base = (inViaggio && k in inViaggio) ? inViaggio[k] : (giorni[k] || []);
+      if (k in modifiche || (inViaggio && k in inViaggio) || (proposta && k in proposta && chiave(proposta[k]) !== chiave(base))) e.classList.add('mod');
+      if (proposta && dubbi.has(k)) e.classList.add('dubbio');
+      if (selezionati.has(k)) e.classList.add('sel');
+      const num = document.createElement('span'); num.className = 'n'; num.textContent = d; e.appendChild(num);
+      const lista = attuale(k);
+      lista.forEach(v => {
+        const t = perNome[String(v.nome).toLowerCase()], c = document.createElement('span');
+        c.className = 'chip';
+        c.textContent = t ? testoChip(t, v.ore) : String(v.nome).slice(0, 2);
+        c.style.background = t ? t.colore : '#9aa0a6'; c.style.color = t ? t.testo : '#ffffff';
+        e.appendChild(c);
+      });
+      if (festivita[k]) { const fx = document.createElement('span'); fx.className = 'fx'; fx.textContent = '🎉'; fx.setAttribute('aria-label', festivita[k]); e.title = festivita[k]; e.appendChild(fx); }
+      if (proposta && dubbi.has(k)) { const q = document.createElement('span'); q.className = 'chip q'; q.textContent = '?'; e.appendChild(q); }
+      else if (!lista.length && !selezionati.has(k)) { const p = document.createElement('span'); p.className = 'piu'; p.textContent = '+'; e.appendChild(p); }
+      e.onclick = () => tocca(k);
+      g.appendChild(e);
+    }
+    renderRiep();
+  }
+
+  /** Livello delle ore: verde fino a 80 h, giallo fino alle ore mensili, rosso con lo straordinario. */
+  function livelloOre() {
+    const R = regole || {};
+    if (R.oreMese > 0 && riep.ore > R.oreMese) return 'rosso';
+    if (riep.ore > 80) return 'giallo';
+    return 'verde';
+  }
+  /** Quanti turni di ogni tipo nel mese: [{ tipo, n, ore, date: [] }] in ordine di tipo. */
+  function conteggioTurni() {
+    const m = {};
+    dettaglio.forEach(t => {
+      const tp = perNome[String(t.nome).toLowerCase()];
+      const k = tp ? tp.nome : t.nome;
+      const c = m[k] || (m[k] = { tipo: tp, nome: k, n: 0, ore: 0, date: [] });
+      c.n++; c.ore += t.ore; c.date.push(t.date);
+    });
+    const ordine = tutti.map(t => t.nome);
+    return Object.values(m).sort((a, b) => (ordine.indexOf(a.nome) + 1 || 99) - (ordine.indexOf(b.nome) + 1 || 99));
+  }
+  function chipsConteggio() {
+    const c = conteggioTurni();
+    if (!c.length) return '<b>0</b><small>nessun turno inserito</small>';
+    const tot = c.reduce((a, x) => a + x.n, 0);
+    return '<b>' + tot + '</b><span class="cntchips">' + c.map(x => '<i style="background:' + (x.tipo ? x.tipo.colore : '#9aa0a6') + ';color:' + (x.tipo ? x.tipo.testo : '#fff') + '">' +
+      escapeHtml((x.tipo ? (x.tipo.icona || '') + x.tipo.sigla : x.nome.slice(0, 2)) + ' ' + x.n) + '</i>').join('') + '</span>';
+  }
+  function festivitaLavorate() {
+    const fatte = {};
+    dettaglio.forEach(t => { if (festivita[t.date] && (t.cat === 'Lavoro' || t.cat === 'Ore variabili') && t.ore > 0) fatte[t.date] = (fatte[t.date] || 0) + t.ore; });
+    return fatte;
+  }
+
+  function renderRiep() {
+    const el = $('riep');
+    if (!riep) { el.innerHTML = '<div class="car">Caricamento riepilogo…</div>'; return; }
+    const R = regole || {};
+    const sogliaTxt = R.oreMese > 0
+      ? (riep.ore > R.oreMese ? 'straordinario: ' + fmtOre(riep.ore - R.oreMese) + ' h oltre le ' + fmtOre(R.oreMese) + ' h mensili'
+        : riep.ore === R.oreMese ? 'ore mensili raggiunte' : 'su ' + fmtOre(R.oreMese) + ' h mensili · mancano ' + ore(R.oreMese - riep.ore))
+      : 'imposta le ore mensili per lo straordinario';
+    const liv = livelloOre(), nFest = Object.keys(festivitaLavorate()).length;
+    const nascosto = '<span aria-label="importo nascosto">•••••</span>';
+    el.innerHTML =
+      '<div class="card' + (oreAperto ? ' aperta' : '') + '" id="cardOre">' +
+        '<button data-act="tendina" aria-expanded="' + oreAperto + '">' + icona(liv === 'rosso' ? 'oreSudato' : 'ore', 'bg', liv) +
+          '<span class="lb"><span>Ore lavorate</span><b>' + ore(riep.ore) + '</b><small>' + escapeHtml(sogliaTxt) + '</small></span><span class="fr giu">›</span></button>' +
+        '<div class="tendina">' +
+          '<button data-k="stra">' + icona('stra') + '<span class="t">Straordinari</span>' + (R.oreMese > 0 ? '<span class="v">' + ore(riep.stra) + '</span>' : '<span class="v no">Imposta</span>') + '<span class="fr">›</span></button>' +
+          '<button data-k="corso">' + icona('corso') + '<span class="t">Corso</span><span class="v">' + ore(riep.corso || 0) + '</span><span class="fr">›</span></button>' +
+          '<button data-k="fest">' + icona('fest') + '<span class="t">Festività non godute</span><span class="v">' + (nFest ? nFest + (nFest === 1 ? ' giorno' : ' giorni') : 'nessuna') + '</span><span class="fr">›</span></button>' +
+          '<button data-k="ore" class="tutto">' + icona('ore') + '<span class="t">Tutte le ore, giorno per giorno</span><span class="fr">›</span></button>' +
+        '</div>' +
+      '</div>' +
+      '<button class="card" data-k="giorni">' + icona('giorni', 'bg') + '<span class="lb"><span>Giorni lavorati</span><b>' + riep.giorniLav + '</b></span><span class="fr">›</span></button>' +
+      cardFerie() +
+      '<button class="card" data-k="conta">' + icona('conta', 'bg') + '<span class="lb"><span>Turni del mese</span>' + chipsConteggio() + '</span><span class="fr">›</span></button>' +
+      '<div class="card soldi">' +
+        '<button class="apri" data-k="soldi">' + icona('soldi', 'bg') + '<span class="lb"><span>Stipendio stimato</span><b>' + (soldiNascosti ? nascosto : euro(riep.lordo)) +
+          '</b><small>' + (soldiNascosti ? 'stima nascosta' : busta ? '📄 in busta: netto ' + euro(busta.netto) + ' · lordo ' + euro(busta.lordo) : 'lordo · netto stimato ' + euro(riep.netto)) + '</small></span></button>' +
+        '<button class="occhio" data-act="occhio" aria-label="' + (soldiNascosti ? 'Mostra' : 'Nascondi') + ' lo stipendio stimato" title="' + (soldiNascosti ? 'Mostra' : 'Nascondi') + '">' + (soldiNascosti ? ICONE.occhioNo : ICONE.occhio) + '</button>' +
+      '</div>';
+    el.querySelectorAll('[data-k]').forEach(b => { b.onclick = () => apriDettaglio(b.dataset.k); });
+    el.querySelector('[data-act="tendina"]').onclick = () => {
+      oreAperto = !oreAperto;
+      $('cardOre').classList.toggle('aperta', oreAperto);
+      el.querySelector('[data-act="tendina"]').setAttribute('aria-expanded', oreAperto);
+    };
+    el.querySelector('[data-act="occhio"]').onclick = () => {
+      soldiNascosti = !soldiNascosti; renderRiep();
+      scriviMemoria(x => { x.nascondiSoldi = soldiNascosti; });
+      chiama('salvaPreferenza', 'nascondiSoldi', soldiNascosti).catch(() => {});
+    };
+  }
+
+  /* ================= dettagli del riepilogo ================= */
+  const pct = v => Math.round(v * 100) + '%';
+  const nomeMese = () => MESI[mese - 1] + ' ' + anno;
+  function giornoBreve(k) {
+    const [y, m, d] = k.split('-').map(Number);
+    return GG[(new Date(y, m - 1, d).getDay() + 6) % 7] + ' ' + d;
+  }
+  /** Turni raggruppati per giorno */
+  function perGiorno() {
+    const map = {};
+    dettaglio.forEach(t => {
+      const g = map[t.date] || (map[t.date] = { date: t.date, voci: [], ore: 0, ord: 0, stra: 0, fest: t.fest, lordo: 0, lav: 0, e: { ord: 0, stra: 0, fest: 0, ass: 0 } });
+      g.voci.push(t);
+      ['ore', 'ord', 'stra', 'lordo'].forEach(k => { g[k] += t[k]; });
+      Object.keys(t.e).forEach(k => { g.e[k] = (g.e[k] || 0) + t.e[k]; });
+      if ((t.cat === 'Lavoro' || t.cat === 'Ore variabili') && t.ore > 0) g.lav += t.ore;
+    });
+    return Object.keys(map).sort().map(k => map[k]);
+  }
+  function chipsDi(voci) {
+    return voci.map(t => {
+      const tp = perNome[String(t.nome).toLowerCase()];
+      return '<i style="background:' + (tp ? tp.colore : '#9aa0a6') + ';color:' + (tp ? tp.testo : '#fff') + '">' +
+        escapeHtml(tp ? testoChip(tp, t.cat === 'Ore variabili' ? t.ore : null) : t.nome.slice(0, 2)) + '</i>';
+    }).join('');
+  }
+  function orariDi(voci) {
+    return voci.map(t => t.inizio && t.fine ? t.inizio + '–' + t.fine : (t.cat === 'Ore variabili' ? t.nome : '')).filter(Boolean).join(', ');
+  }
+  function rigaDet(g, valore, sotto, extra) {
+    const tx = [extra, orariDi(g.voci)].filter(Boolean).join(' · ');
+    return '<div class="det-r"><span class="gg' + (g.fest ? ' f' : '') + '">' + giornoBreve(g.date) + '</span>' +
+      '<span><span class="cs">' + chipsDi(g.voci) + '</span><span class="tx">' + escapeHtml(tx) + '</span></span>' +
+      '<span class="vl">' + valore + (sotto ? '<small>' + sotto + '</small>' : '') + '</span></div>';
+  }
+  const vuoto = t => '<div class="det-lista"><div class="det-vuoto">' + t + '</div></div>';
+  const bottoneSoglia = '<div class="riga"><button class="btn pri" onclick="apriRegole()">Imposta le ore mensili</button></div>';
+
+  function apriDettaglio(k) {
+    if (!riep) return;
+    const R = regole || { paga: 0, pStra: 0, pFest: 0, oreMese: 0, tratt: 0, domenica: true };
+    const G = perGiorno(), lav = G.filter(g => g.lav > 0);
+    let titolo = '', tot = '', sub = '', reg = '', corpo = '';
+
+    if (k === 'ore' || k === 'giorni') {
+      titolo = k === 'ore' ? 'Ore lavorate' : 'Giorni lavorati';
+      tot = k === 'ore' ? ore(riep.ore) : String(riep.giorniLav);
+      const n = new Date(anno, mese, 0).getDate();
+      sub = k === 'ore' ? 'in ' + riep.giorniLav + (riep.giorniLav === 1 ? ' giorno' : ' giorni')
+        : 'su ' + n + ' giorni del mese · ' + (n - riep.giorniLav) + ' liberi';
+      if (k === 'ore') reg = R.oreMese > 0
+        ? 'Ore mensili da contratto: ' + fmtOre(R.oreMese) + ' h. ' + (riep.ore > R.oreMese ? 'Superate di ' + ore(riep.ore - R.oreMese) + ': sono straordinario.' : 'Mancano ' + ore(R.oreMese - riep.ore) + ' prima dello straordinario.')
+          + (riep.corso ? ' Di cui ' + ore(riep.corso) + ' di corso.' : '')
+        : 'Imposta le ore mensili per calcolare lo straordinario.';
+      if (!lav.length) corpo = vuoto('Nessun turno lavorato in questo mese.');
+      else {
+        const sett = {};
+        lav.forEach(g => {
+          const [y, m, d] = g.date.split('-').map(Number), dt = new Date(y, m - 1, d);
+          const lun = new Date(y, m - 1, d - (dt.getDay() + 6) % 7);
+          const ks = iso(lun.getFullYear(), lun.getMonth() + 1, lun.getDate());
+          (sett[ks] = sett[ks] || []).push(g);
+        });
+        corpo = '<div class="det-lista">' + Object.keys(sett).sort().map(ks => {
+          const gs = sett[ks], [y, m, d] = ks.split('-').map(Number), dom = new Date(y, m - 1, d + 6);
+          const totS = gs.reduce((a, g) => a + g.lav, 0);
+          const etich = 'Settimana ' + d + ' ' + MESI[m - 1].slice(0, 3) + ' – ' + dom.getDate() + ' ' + MESI[dom.getMonth()].slice(0, 3);
+          return '<div class="det-sett"><span>' + etich + '</span><span>' + (k === 'ore' ? ore(totS) : gs.length + (gs.length === 1 ? ' giorno' : ' giorni')) + '</span></div>' +
+            gs.map(g => rigaDet(g, ore(g.lav), g.stra ? 'di cui ' + ore(g.stra) + ' straord.' : '', festivita[g.date] || '')).join('');
+        }).join('') + '</div>';
+      }
+    }
+
+    if (k === 'stra') {
+      titolo = 'Straordinario';
+      if (!(R.oreMese > 0)) {
+        tot = '—'; sub = 'ore mensili non impostate';
+        reg = 'Lo straordinario parte quando nel mese superi le ore previste dal tuo contratto. Impostale e il conteggio è automatico.';
+        corpo = bottoneSoglia;
+      } else {
+        tot = ore(riep.stra); sub = riep.stra ? 'pagate ' + euro(riep.e.stra) + ' (+' + pct(R.pStra) + ')' : '';
+        reg = 'Ogni ora lavorata oltre le ' + fmtOre(R.oreMese) + ' h del mese è straordinario, con maggiorazione +' + pct(R.pStra) + '. ' +
+          (riep.ore < R.oreMese ? 'Ti mancano ' + ore(R.oreMese - riep.ore) + '.' : '');
+        const gs = G.filter(g => g.stra > 0);
+        corpo = gs.length ? '<div class="det-lista">' + gs.map(g => rigaDet(g, ore(g.stra), euro(g.e.stra))).join('') + '</div>'
+          : vuoto('Nessuno straordinario in questo mese.');
+      }
+    }
+
+    if (k === 'corso') {
+      titolo = 'Ore di corso';
+      tot = ore(riep.corso || 0);
+      reg = 'Le ore di corso contano come ore lavorate (anche per lo straordinario) e sono pagate alla paga oraria.';
+      const gs = G.map(g => Object.assign({}, g, { voci: g.voci.filter(t => t.cat === 'Ore variabili') })).filter(g => g.voci.length);
+      sub = gs.length ? gs.length + (gs.length === 1 ? ' giornata' : ' giornate') : '';
+      corpo = gs.length ? '<div class="det-lista">' + gs.map(g => rigaDet(g, ore(g.voci.reduce((a, t) => a + t.ore, 0)))).join('') + '</div>'
+        : vuoto('Nessun corso in questo mese.');
+    }
+
+    if (k === 'fest') {
+      titolo = 'Festività non godute';
+      const fatte = festivitaLavorate(), nF = Object.keys(fatte).length;
+      tot = nF ? nF + (nF === 1 ? ' giorno' : ' giorni') : 'nessuna';
+      sub = nF ? ore(Object.values(fatte).reduce((a, b) => a + b, 0)) + ' lavorate in giorni di festa' : '';
+      reg = 'Sono le festività in cui hai lavorato. Le ore nei festivi' + (R.domenica ? ' (anche la domenica)' : '') + ' hanno la maggiorazione +' + pct(R.pFest) +
+        (riep.e.fest ? ': questo mese ' + euro(riep.e.fest) + ' in tutto.' : '.');
+      const righe = Object.keys(festivita).sort().map(d => {
+        const g = G.find(x => x.date === d && x.lav > 0);
+        if (g) return rigaDet(g, ore(g.lav), 'non goduta · +' + euro(g.e.fest), festivita[d]);
+        return '<div class="det-r no"><span class="gg f">' + giornoBreve(d) + '</span><span><span class="tx2">' + escapeHtml(festivita[d]) + '</span><br><span class="tx">goduta (non lavorata)</span></span><span class="vl">—</span></div>';
+      });
+      const domeniche = R.domenica ? G.filter(g => g.lav > 0 && g.fest && !festivita[g.date]) : [];
+      corpo = (righe.length ? '<div class="det-lista">' + righe.join('') + '</div>' : vuoto('Nessuna festività nazionale in ' + MESI[mese - 1] + '.')) +
+        (domeniche.length ? '<p class="lbl">Domeniche lavorate (con maggiorazione festiva)</p><div class="det-lista">' +
+          domeniche.map(g => rigaDet(g, ore(g.lav), '+' + euro(g.e.fest))).join('') + '</div>' : '');
+    }
+
+    if (k === 'conta') {
+      titolo = 'Turni del mese';
+      const c = conteggioTurni(), totT = c.reduce((a, x) => a + x.n, 0);
+      tot = String(totT); sub = totT === 1 ? 'turno inserito' : 'turni inseriti';
+      const doppi = G.filter(g => g.voci.length > 1).length;
+      reg = doppi ? 'Giorni con più di un turno: ' + doppi + '.' : '';
+      corpo = c.length ? '<div class="det-lista">' + c.map(x => {
+        const ch = '<span class="chipbig" style="background:' + (x.tipo ? x.tipo.colore : '#9aa0a6') + ';color:' + (x.tipo ? x.tipo.testo : '#fff') + '">' + escapeHtml(x.tipo ? (x.tipo.icona || '') + x.tipo.sigla : x.nome.slice(0, 2)) + '</span>';
+        const giorniTxt = x.date.map(giornoBreve).join(', ');
+        return '<div class="det-r">' + ch + '<span><span class="tx2">' + escapeHtml(x.nome) + '</span><br><span class="tx">' + escapeHtml(giorniTxt) + '</span></span>' +
+          '<span class="vl">' + x.n + (x.n === 1 ? ' turno' : ' turni') + (x.ore ? '<small>' + ore(x.ore) + '</small>' : '') + '</span></div>';
+      }).join('') + '</div>' : vuoto('Nessun turno inserito in questo mese.');
+    }
+
+    if (k === 'ferie' && ferie) {
+      const D = dettaglioFerie();
+      $('detIco').innerHTML = '<span class="ico bg c-ferie" style="font-size:20px">🏖️</span>';
+      $('detTitolo').textContent = D.titolo;
+      $('detTot').innerHTML = '<b>' + escapeHtml(D.tot) + '</b><span>' + escapeHtml(D.sub) + '</span>';
+      $('detReg').textContent = D.reg; $('detReg').hidden = false;
+      $('detCorpo').innerHTML = D.corpo;
+      $('det').classList.add('on');
+      return;
+    }
+
+    if (k === 'soldi') {
+      titolo = 'Stipendio stimato';
+      tot = euro(riep.lordo); sub = 'lordo · netto stimato ' + euro(riep.netto);
+      reg = 'Stima calcolata con le tue impostazioni: la busta paga resta il riferimento.';
+      const e = riep.e || {}, P = R.paga;
+      const voce = (t, sotto, v) => '<div class="det-r"><span><span class="tx2">' + t + '</span>' + (sotto ? '<br><span class="tx">' + sotto + '</span>' : '') + '</span><span class="vl">' + v + '</span></div>';
+      corpo = '<div class="det-lista det-conto">' +
+        voce('Ore ordinarie', ore(riep.ord) + ' × ' + euroPaga(P), euro(e.ord || 0)) +
+        (riep.stra ? voce('Straordinario', ore(riep.stra) + ' × ' + euroPaga(P) + ' +' + pct(R.pStra), euro(e.stra || 0)) : '') +
+        (riep.festive ? voce('Maggiorazione festivi', ore(riep.festive) + ' × ' + euroPaga(P) + ' × ' + pct(R.pFest), euro(e.fest || 0)) : '') +
+        (riep.assenze ? voce('Assenze retribuite', ore(riep.assenze) + ' × ' + euroPaga(P), euro(e.ass || 0)) : '') +
+        '<div class="det-r tot"><span class="tx2">Lordo</span><span class="vl">' + euro(riep.lordo) + '</span></div>' +
+        voce('Trattenute stimate', pct(R.tratt) + ' (contributi e tasse)', '− ' + euro(riep.lordo - riep.netto)) +
+        '<div class="det-r tot"><span class="tx2">Netto stimato</span><span class="vl">' + euro(riep.netto) + '</span></div>' +
+        (busta ? '<div class="det-r"><span><span class="tx2">📄 Dalla busta paga</span><br><span class="tx">lordo ' + euro(busta.lordo) + (busta.trattenute ? ' · trattenute ' + euro(busta.trattenute) : '') +
+          (busta.link ? ' · <a href="' + escapeHtml(busta.link) + '" target="_blank" rel="noopener">apri il PDF</a>' : '') + '</span></span><span class="vl">' + euro(busta.netto) + '</span></div>' : '') +
+        '</div>' +
+        '<div class="riga"><button class="btn" onclick="apriBusta()">📄 ' + (busta ? 'Ricarica' : 'Carica') + ' la busta paga</button></div><div class="riga"><button class="btn" onclick="apriRegole()">Cambia paga e percentuali</button></div>';
+    }
+
+    $('detIco').innerHTML = icona(k, 'bg');
+    $('detTitolo').textContent = titolo + ' · ' + nomeMese();
+    $('detTot').innerHTML = '<b>' + escapeHtml(tot) + '</b><span>' + escapeHtml(sub) + '</span>';
+    $('detReg').textContent = reg; $('detReg').hidden = !reg;
+    $('detCorpo').innerHTML = corpo;
+    $('det').classList.add('on');
+  }
+
+  /* ================= ferie ================= */
+  /** Festività italiane (e locali) per qualsiasi data, anche fuori dal mese mostrato. */
+  function nomeFesta(k) {
+    const [y, m, d] = k.split('-').map(Number), md = pad(m) + '-' + pad(d);
+    const fisse = { '01-01':'Capodanno', '01-06':'Epifania', '04-25':'Festa della Liberazione', '05-01':'Festa del Lavoro', '06-02':'Festa della Repubblica',
+      '08-15':'Ferragosto', '11-01':'Ognissanti', '12-08':'Immacolata Concezione', '12-25':'Natale', '12-26':'Santo Stefano' };
+    if (fisse[md]) return fisse[md];
+    if (y >= 2026 && md === '10-04') return 'San Francesco d\'Assisi';
+    const a = y % 19, b = Math.floor(y / 100), c = y % 100, dd = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - dd - g + 15) % 30, i = Math.floor(c / 4), kk = c % 4, l = (32 + 2 * e + 2 * i - h - kk) % 7, mm = Math.floor((a + 11 * h + 22 * l) / 451);
+    const p = new Date(y, Math.floor((h + l - 7 * mm + 114) / 31) - 1, ((h + l - 7 * mm + 114) % 31) + 1), pq = new Date(p.getFullYear(), p.getMonth(), p.getDate() + 1);
+    if (p.getMonth() + 1 === m && p.getDate() === d) return 'Pasqua';
+    if (pq.getMonth() + 1 === m && pq.getDate() === d) return 'Pasquetta';
+    const loc = String((regole && regole.locali) || '').match(/\d{1,2}[\/.\-]\d{1,2}/g) || [];
+    if (loc.some(x => { const [gg, me] = x.split(/[\/.\-]/).map(Number); return gg === d && me === m; })) return 'Festività locale';
+    return null;
+  }
+  const giornoSett = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
+  /** Un giorno di ferie conta se non è domenica né festività (né sabato, con la settimana corta). */
+  function giornoDiFerie(k) {
+    const w = giornoSett(k);
+    return w !== 0 && !nomeFesta(k) && !(w === 6 && regole && regole.ferieSabato === false);
+  }
+  function contoFerie() {
+    if (!ferie) return null;
+    const R = regole || {}, inOre = R.ferieUnita === 'ore', og = +ferie.oreGiorno || 0;
+    const date = (ferie.date || []).filter(giornoDiFerie).sort();
+    const godute = date.filter(k => k <= OGGI), prog = date.filter(k => k > OGGI), val = n => inOre ? n * og : n;
+    const out = { date, godute, prog, usate: val(godute.length), programmate: val(prog.length), u: inOre ? 'ore' : 'giorni', inOre, og };
+    // saldo letto dalla busta paga: è il dato ufficiale; si tolgono solo le ferie segnate dopo quel mese
+    // e si aggiungono quelle che maturano nei mesi che mancano a fine anno
+    const sm = R.ferieSaldoMese || '', ys = +sm.slice(0, 4), ms = +sm.slice(5, 7);
+    if (R.ferieSaldo != null && R.ferieSaldo !== '' && (ys === anno || ys === anno - 1)) {
+      const saldo = +R.ferieSaldo, fine = ys === anno ? sm + '-31' : '0000';
+      const dopo = date.filter(k => k > fine), mesiRestanti = ys === anno ? 12 - ms : 12;
+      const matura = (+R.ferieAnno || 0) * mesiRestanti / 12;
+      return Object.assign(out, { busta: { saldo, mese: sm, dopo: val(dopo.length), matura },
+        tot: saldo + matura + (ys === anno ? val(date.length - dopo.length) : 0), restano: saldo + matura - val(dopo.length) });
+    }
+    const tot = (+R.ferieAnno || 0) + (+R.ferieResiduo || 0);
+    return Object.assign(out, { tot, restano: tot - val(date.length) });
+  }
+  function cardFerie() {
+    const F = contoFerie(); if (!F) return '';
+    const p = v => Math.max(0, Math.min(100, F.tot ? v / F.tot * 100 : 0));
+    return '<button class="card" data-k="ferie"><span class="ico bg c-ferie" style="font-size:20px">🏖️</span><span class="lb" style="flex:1">' +
+      '<span>Ferie ' + anno + '</span><b' + (F.restano < 0 ? ' style="color:var(--fest)"' : '') + '>Ne restano ' + fmtOre(F.restano) + ' ' + F.u + '</b>' +
+      '<span class="fbarra"><i style="width:' + p(F.usate) + '%;background:#34a853"></i><i style="width:' + p(F.programmate) + '%;background:#8ab4f8"></i></span>' +
+      '<small>' + (F.busta ? 'a fine anno · busta paga di ' + MESI[+F.busta.mese.slice(5) - 1] + ': saldo ' + fmtOre(F.busta.saldo) + ' · programmate ' + fmtOre(F.programmate)
+        : 'godute ' + fmtOre(F.usate) + ' · programmate ' + fmtOre(F.programmate) + ' · su ' + fmtOre(F.tot) + ' ' + F.u) + '</small></span><span class="fr">›</span></button>';
+  }
+  function dettaglioFerie() {
+    const F = contoFerie(), R = regole || {};
+    const riga = (k, g) => '<div class="det-r"><span class="gg" style="width:86px">' + giornoBreve(k) + ' ' + MESI[+k.slice(5, 7) - 1].slice(0, 3) + '</span><span class="pill ' + (g ? 'g">goduta' : 'p">programmata') +
+      '</span><span class="vl">' + (F.inOre ? ore(F.og) : '1 g') + '</span></div>';
+    const corpo = '<div class="fconti"><div><b>' + fmtOre(F.tot) + '</b><span>spettanti</span></div><div><b>' + fmtOre(F.usate + F.programmate) + '</b><span>usate</span></div>' +
+      '<div><b style="color:' + (F.restano < 0 ? 'var(--fest)' : 'var(--ok)') + '">' + fmtOre(F.restano) + '</b><span>restano</span></div></div>' +
+      (F.date.length ? '<div class="det-lista">' +
+        (F.prog.length ? '<div class="det-sett"><span>Programmate</span><span>' + F.prog.length + '</span></div>' + F.prog.map(k => riga(k, false)).join('') : '') +
+        (F.godute.length ? '<div class="det-sett"><span>Godute</span><span>' + F.godute.length + '</span></div>' + F.godute.slice().reverse().map(k => riga(k, true)).join('') : '') + '</div>'
+        : vuoto('Nessun giorno di ferie nel ' + anno + '.')) +
+      '<div class="riga"><button class="btn" onclick="apriSezione(\'ferieBox\')">Impostazioni ferie</button><button class="btn pri" onclick="apriPeriodoFerie()">🏖️ Segna ferie</button></div>';
+    const B = F.busta;
+    return { titolo: 'Ferie ' + anno, tot: fmtOre(F.restano) + ' ' + F.u, sub: B ? 'stimate a fine anno' : 'restano su ' + fmtOre(F.tot),
+      reg: (B ? 'Dalla busta paga di ' + MESI[+B.mese.slice(5) - 1] + ' ' + B.mese.slice(0, 4) + ': saldo ' + fmtOre(B.saldo) + ' ' + F.u +
+          '. Da allora: + ' + fmtOre(B.matura) + ' che maturano entro dicembre − ' + fmtOre(B.dopo) + ' segnate nel calendario. Caricando la prossima busta paga il conto si riallinea.'
+        : fmtOre(+R.ferieAnno || 0) + ' ' + F.u + ' all\'anno + ' + fmtOre(+R.ferieResiduo || 0) + ' dall\'anno prima' + (F.inOre ? ', ' + fmtOre(F.og) + ' ore per giorno' : '') + '.') +
+        ' Ogni giorno di ferie è pagato ' + fmtOre(F.og) + ' ore come assenza retribuita. Domeniche e festività non contano.', corpo };
+  }
+
+  /* periodo di ferie */
+  function giorniPeriodo() {
+    const a = $('ferDal').value, b = $('ferAl').value || a, si = [], no = [];
+    if (!a || b < a) return { si, no };
+    const [y, m, d] = a.split('-').map(Number);
+    for (let t = new Date(y, m - 1, d, 12); ; t.setDate(t.getDate() + 1)) {
+      const k = iso(t.getFullYear(), t.getMonth() + 1, t.getDate()); if (k > b || si.length + no.length > 62) break;
+      (giornoDiFerie(k) ? si : no).push(k);
+    }
+    return { si, no };
+  }
+  function anteprimaFerie() {
+    const { si, no } = giorniPeriodo(), F = contoFerie();
+    if (!si.length) { $('ferAnt').innerHTML = 'Scegli le date (al massimo due mesi alla volta).'; $('ferOk').disabled = true; return; }
+    const nuovi = si.filter(k => !F.date.includes(k)), costo = F.inOre ? nuovi.length * F.og : nuovi.length, dopo = F.restano - costo;
+    const nome = k => GGL[giornoSett(k)].slice(0, 3) + ' ' + +k.slice(8) + (nomeFesta(k) ? ' 🎉' : '');
+    $('ferAnt').innerHTML = 'Giorni di ferie: <b class="v">' + si.length + '</b>' + (F.inOre ? ' (' + fmtOre(costo) + ' ore)' : '') +
+      (no.length ? '<br><span class="tx">Non contano: ' + no.map(nome).join(', ') + '</span>' : '') +
+      '<br>Dopo ne restano <b class="' + (dopo < 0 ? 'no' : 'v') + '">' + fmtOre(dopo) + ' ' + F.u + '</b>' + (dopo < 0 ? ' <span class="no">(più di quelle spettanti)</span>' : '');
+    $('ferOk').disabled = false;
+  }
+  function apriPeriodoFerie() {
+    if (!ferie || proposta) return;
+    $('det').classList.remove('on');
+    const primo = iso(anno, mese, 1) > OGGI ? iso(anno, mese, 1) : (OGGI.slice(0, 7) === iso(anno, mese, 1).slice(0, 7) ? OGGI : iso(anno, mese, 1));
+    $('ferDal').value = primo; $('ferAl').value = primo;
+    anteprimaFerie(); $('fer').classList.add('on');
+  }
+  function confermaFerie() {
+    const { si } = giorniPeriodo(); if (!si.length || !ferie) return;
+    $('fer').classList.remove('on');
+    si.forEach(k => imposta(k, [{ nome: ferie.nome }]));
+    // il conteggio si aggiorna subito; il server conferma col salvataggio
+    ferie.date = [...new Set((ferie.date || []).filter(k => !si.includes(k)).concat(si.filter(k => k.startsWith(anno + '-'))))];
+    render();
+    stato('🏖️ ' + si.length + (si.length === 1 ? ' giorno' : ' giorni') + ' di ferie · salvataggio…');
+    salvaSubito();
+  }
+
+  /* ================= busta paga ================= */
+  const PDFJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  let bpFile = null, bpB64 = '', linkBuste = '';
+  function passoBp(n) { [1, 2, 3].forEach(i => { $('bp' + i).hidden = i !== n; }); }
+  function apriBusta() {
+    $('det').classList.remove('on');
+    $('bpArchivio').hidden = !linkBuste; if (linkBuste) $('bpArchivio').href = linkBuste;
+    passoBp(1); $('bp').classList.add('on');
+  }
+  function chiudiBusta() { $('bp').classList.remove('on'); $('bpFile').value = ''; }
+  function progBp(p, t) { $('bpBar').style.width = Math.round(p * 100) + '%'; if (t) $('bpFase').textContent = t; }
+  function scriptUnaVolta(url, pronto) {
+    return new Promise((ok, ko) => {
+      if (pronto()) return ok();
+      const s = document.createElement('script'); s.src = url; s.onload = ok;
+      s.onerror = () => ko(new Error('non riesco a scaricare il lettore: controlla la connessione')); document.head.appendChild(s);
+    });
+  }
+  async function pdfjs() {
+    if (!window.pdfjsLib) {
+      // il "worker" viene caricato come script normale: nella pagina di Google i worker esterni non sono permessi
+      await scriptUnaVolta(PDFJS_WORKER, () => !!window.pdfjsWorker);
+      await scriptUnaVolta(PDFJS_URL, () => !!window.pdfjsLib);
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+    }
+    return window.pdfjsLib;
+  }
+  const leggiFileB64 = f => new Promise((ok, ko) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = ko; r.readAsDataURL(f); });
+
+  /** Testo della busta paga con le posizioni: [{ t, x0, y0, x1, y1, pag }] (y dall'alto). */
+  async function testoBusta(file) {
+    const pezzi = [];
+    const ocr = async (tela, pag) => {
+      const w = await preparaLettore();
+      await w.setParameters({ tessedit_pageseg_mode: '3', tessedit_char_whitelist: '' });
+      const { data } = await w.recognize(tela);
+      (data.words || []).forEach(p => pezzi.push({ t: p.text, x0: p.bbox.x0, y0: p.bbox.y0 + pag * 10000, x1: p.bbox.x1, y1: p.bbox.y1 + pag * 10000 }));
+    };
+    if (/pdf/i.test(file.type) || /\.pdf$/i.test(file.name)) {
+      progBp(0.1, 'Apro il PDF…');
+      const lib = await pdfjs(), doc = await lib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+      for (let n = 1; n <= Math.min(doc.numPages, 3); n++) {
+        const pag = await doc.getPage(n), vp = pag.getViewport({ scale: 1 }), tc = await pag.getTextContent();
+        const prima = pezzi.length;
+        tc.items.forEach(it => {
+          if (!it.str || !it.str.trim()) return;
+          const hh = Math.abs(it.transform[3]) || it.height || 8, x = it.transform[4], y = vp.height - it.transform[5];
+          // separa le parole mantenendo la posizione approssimata (per trovare i numeri vicini alle voci)
+          const tot = it.str.length, lw = (it.width || hh * 0.5 * tot) / tot;
+          it.str.replace(/\S+/g, (w, i) => { pezzi.push({ t: w, x0: x + i * lw, x1: x + (i + w.length) * lw, y0: y - hh + (n - 1) * 10000, y1: y + (n - 1) * 10000 }); return w; });
+        });
+        if (pezzi.length - prima < 15) { // PDF scansionato: niente testo, lo leggo come immagine
+          progBp(0.3, 'Il PDF è una scansione: leggo l\'immagine (pagina ' + n + ')…');
+          const v2 = pag.getViewport({ scale: 2.5 }), c = document.createElement('canvas'); c.width = v2.width; c.height = v2.height;
+          await pag.render({ canvasContext: c.getContext('2d'), viewport: v2 }).promise;
+          await ocr(c, n - 1);
+        }
+      }
+    } else {
+      progBp(0.2, 'Leggo la foto…');
+      const img = await immagineDaFile(file), s = Math.min(3, Math.max(1, 2400 / img.naturalWidth));
+      const c = document.createElement('canvas'); c.width = img.naturalWidth * s; c.height = img.naturalHeight * s;
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+      await ocr(c, 0);
+    }
+    return pezzi;
+  }
+
+  /**
+   * Cerca le voci principali di una busta paga italiana (i nomi cambiano da un programma paghe all'altro).
+   * Restituisce { mese: 'aaaa-mm', lordo, trattenute, netto, ferie, unita, testo }; i valori non trovati sono null.
+   */
+  function analizzaBusta(pezzi) {
+    const N = s => String(s).toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const numero = s => {
+      let t = String(s).replace(/[€\s]/g, ''); const neg = /-$|^-/.test(t); t = t.replace(/^-|-$/g, '');
+      if (!/^\d{1,3}([.,]\d{3})*([.,]\d{1,2})?$|^\d+([.,]\d+)?$/.test(t)) return null;
+      if (/,\d{1,2}$/.test(t)) t = t.replace(/\./g, '').replace(',', '.');
+      else if (/\.\d{1,2}$/.test(t) && /,/.test(t)) t = t.replace(/,/g, '');
+      else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+      else t = t.replace(',', '.');
+      const v = parseFloat(t); return isNaN(v) ? null : (neg ? -v : v);
+    };
+    const P = pezzi.map(p => Object.assign({}, p, { u: N(p.t), yc: (p.y0 + p.y1) / 2, h: p.y1 - p.y0, v: numero(p.t) }));
+    const hs = P.map(p => p.h).sort((a, b) => a - b), H = hs[Math.floor(hs.length / 2)] || 10;
+    // righe
+    const righe = [];
+    P.slice().sort((a, b) => a.yc - b.yc).forEach(p => { const r = righe.find(r => Math.abs(r.yc - p.yc) < H * 0.55); if (r) r.el.push(p); else righe.push({ yc: p.yc, el: [p] }); });
+    righe.forEach(r => { r.el.sort((a, b) => a.x0 - b.x0); r.testo = r.el.map(p => p.u).join(' '); });
+    const testo = righe.map(r => r.el.map(p => p.t).join(' ')).join('\n');
+    // etichetta = gruppo di parole consecutive nella stessa riga che corrisponde all'espressione
+    const trova = re => {
+      const out = [];
+      righe.forEach(r => { for (let i = 0; i < r.el.length; i++) for (let j = i; j < Math.min(r.el.length, i + 5); j++) {
+        const s = r.el.slice(i, j + 1).map(p => p.u).join(' ');
+        if (re.test(s)) { out.push({ riga: r, x0: r.el[i].x0, x1: r.el[j].x1, yc: r.yc, j }); i = j; break; }
+      } });
+      return out;
+    };
+    // valore: il numero più vicino a destra sulla stessa riga, altrimenti il più vicino sotto l'etichetta
+    const valoreDi = e => {
+      const dx = e.riga.el.slice(e.j + 1).filter(p => p.v != null && p.x0 >= e.x1 - 2);
+      if (dx.length) return dx[0].v;
+      const sotto = P.filter(p => p.v != null && p.yc > e.yc + H * 0.4 && p.yc < e.yc + H * 4.5 && p.x1 > e.x0 - H * 2 && p.x0 < e.x1 + H * 8)
+        .sort((a, b) => (a.yc - b.yc) || (Math.abs(a.x1 - e.x1) - Math.abs(b.x1 - e.x1)));
+      return sotto.length ? sotto[0].v : null;
+    };
+    const primo = (...re) => { for (const r of re) for (const e of trova(r)) { const v = valoreDi(e); if (v != null && v > 0) return v; } return null; };
+    const netto = primo(/^NETTO (DEL MESE|A PAGARE|IN BUSTA|BUSTA|DA PAGARE|IN PAGAMENTO)$/, /^NETTO$/);
+    const lordo = primo(/^TOT(ALE|\.)? ?COMPETENZE$/, /^COMPETENZE LORDE$/, /^(RETRIBUZIONE|TOTALE) LORD[AO]$/, /^IMPONIBILE PREVIDENZIALE$/);
+    const trattenute = primo(/^TOT(ALE|\.)? ?TRATTENUTE$/, /^TOTALE RITENUTE$/);
+    // mese: "OTTOBRE 2026" oppure "10/2026"
+    const MM = ['GENNAIO','FEBBRAIO','MARZO','APRILE','MAGGIO','GIUGNO','LUGLIO','AGOSTO','SETTEMBRE','OTTOBRE','NOVEMBRE','DICEMBRE'];
+    let mese = null; const T = N(testo);
+    const m1 = T.match(new RegExp('(' + MM.join('|') + ')\\s*(20\\d\\d)'));
+    if (m1) mese = m1[2] + '-' + String(MM.indexOf(m1[1]) + 1).padStart(2, '0');
+    else { const m2 = T.match(/(?:MESE|PERIODO|RETRIBUZIONE)[^\n]{0,25}?\b(0?[1-9]|1[0-2])[\/\-.](20\d\d)\b/) || T.match(/\b(0?[1-9]|1[0-2])[\/\-](20\d\d)\b/);
+      if (m2) mese = m2[2] + '-' + String(+m2[1]).padStart(2, '0'); }
+    // ferie: riga che inizia con FERIE (non permessi o ex festività)
+    let ferieV = null, unita = null;
+    const rf = righe.find(r => /^FERIE\b/.test(r.testo) && r.el.some(p => p.v != null)) || righe.find(r => /\bFERIE\b/.test(r.testo) && !/PERMESS|FESTIVIT|ROL\b/.test(r.testo) && r.el.some(p => p.v != null));
+    if (rf) {
+      const kw = rf.testo.match(/(SALDO|RESIDU[OEI]|DA GODERE|RIMANENZA)\s*:?\s*(-?[\d.,]+-?)/);
+      if (kw) ferieV = numero(kw[2]);
+      if (ferieV == null) {
+        // tabella: colonna con intestazione Saldo / Residuo sopra la riga delle ferie
+        const testa = P.filter(p => /^(SALDO|RESIDU[OEI]?|RESID\.?|DA|RIMAN)/.test(p.u) && !/^RES\.?$/.test(p.u) && p.yc < rf.yc && p.yc > rf.yc - H * 8);
+        const nums = rf.el.filter(p => p.v != null);
+        if (testa.length) {
+          const t0 = testa.sort((a, b) => b.yc - a.yc)[0], xc = (t0.x0 + t0.x1) / 2;
+          ferieV = nums.sort((a, b) => Math.abs((a.x0 + a.x1) / 2 - xc) - Math.abs((b.x0 + b.x1) / 2 - xc))[0].v;
+        } else ferieV = nums[nums.length - 1].v; // di solito l'ultimo numero è il saldo
+      }
+      const vicino = righe.filter(r => Math.abs(r.yc - rf.yc) < H * 8).map(r => r.testo).join(' ');
+      unita = /\bORE\b|\bH\b/.test(vicino) ? 'ore' : /\b(GG|GIORNI)\b/.test(vicino) ? 'giorni' : null;
+    }
+    return { mese, lordo, trattenute, netto: netto != null ? netto : (lordo != null && trattenute != null ? Math.round((lordo - trattenute) * 100) / 100 : null), ferie: ferieV, unita, testo };
+  }
+
+  async function caricaBusta(file) {
+    passoBp(2); progBp(0.03, 'Preparazione…'); bpFile = file;
+    try {
+      const [pezzi, b64] = await Promise.all([testoBusta(file), leggiFileB64(file)]);
+      bpB64 = b64;
+      progBp(0.95, 'Cerco le voci…');
+      mostraBusta(analizzaBusta(pezzi));
+    } catch (e) {
+      mostraBusta({ testo: '' }); $('bpErr').textContent = 'Non sono riuscito a leggerla (' + msgErr(e) + '): puoi scrivere i valori a mano e archiviarla lo stesso.'; $('bpErr').hidden = false;
+    }
+  }
+  function mostraBusta(r) {
+    const R = regole || {};
+    $('bpMese').value = r.mese || iso(anno, mese, 1).slice(0, 7);
+    const metti = (id, v) => { $(id).value = v == null ? '' : v; $(id).className = v == null ? 'manca' : 'trovato'; };
+    metti('bpLordo', r.lordo); metti('bpTratt', r.trattenute); metti('bpNetto', r.netto); metti('bpFerie', r.ferie);
+    $('bpUnita').value = r.unita || R.ferieUnita || 'giorni';
+    const trovati = [r.mese, r.lordo, r.netto, r.ferie].filter(v => v != null).length;
+    $('bpSotto').innerHTML = trovati === 4 ? 'Ho trovato tutte le voci: controllale prima di confermare.'
+      : 'Controlla i valori: i campi con il <span style="color:var(--fest)">bordo rosso</span> non li ho trovati, scrivili tu (oppure lasciali vuoti).';
+    $('bpAggFerie').checked = r.ferie != null && !!ferie;
+    $('bpTesto').textContent = r.testo || '(nessun testo)';
+    $('bpErr').hidden = true;
+    aggiornaPercBusta(); passoBp(3);
+  }
+  function aggiornaPercBusta() {
+    const l = +$('bpLordo').value, n = +$('bpNetto').value, ok = l > 0 && n > 0 && n < l;
+    $('bpTrattPerc').textContent = ok ? Math.round((1 - n / l) * 1000) / 10 + '%' : '—';
+    $('bpAggTratt').disabled = !ok; if (!ok) $('bpAggTratt').checked = false;
+  }
+  async function salvaBusta() {
+    const m = $('bpMese').value;
+    if (!/^\d{4}-\d{2}$/.test(m)) { $('bpErr').textContent = 'Indica il mese della busta paga.'; $('bpErr').hidden = false; return; }
+    $('bpSalva').disabled = true; $('bpErr').hidden = true;
+    const d = { mese: m, lordo: $('bpLordo').value, trattenute: $('bpTratt').value, netto: $('bpNetto').value, ferie: $('bpFerie').value, unita: $('bpUnita').value,
+      aggFerie: $('bpAggFerie').checked && $('bpFerie').value !== '', aggTratt: $('bpAggTratt').checked, nomeFile: bpFile ? bpFile.name : '', tipo: bpFile ? bpFile.type : '' };
+    stato('Archivio la busta paga…');
+    try {
+      const r = await chiama('salvaBustaPaga', d, bpB64, anno, mese);
+      if (r.archivio) { linkBuste = r.archivio; $('linkBuste').href = linkBuste; $('linkBuste').hidden = false; }
+      applica(r); riempiRegole(); render(); chiudiBusta();
+      stato('📄 Busta paga di ' + MESI[+m.slice(5) - 1] + ' archiviata' + (d.aggFerie || d.aggTratt ? ' · ferie e compensi aggiornati' : '') + ' ✓', 'ok');
+    } catch (e) { $('bpErr').textContent = 'Errore: ' + msgErr(e); $('bpErr').hidden = false; stato(''); }
+    $('bpSalva').disabled = false;
+  }
+
+  /* ================= paga e straordinario ================= */
+  function riempiRegole() {
+    const R = regole; if (!R) return;
+    $('rOreMese').value = R.oreMese > 0 ? R.oreMese : '';
+    $('rPaga').value = R.paga; $('rStra').value = Math.round(R.pStra * 100); $('rFest').value = Math.round(R.pFest * 100);
+    $('rDom').checked = !!R.domenica; $('rLoc').value = R.locali || ''; $('rTratt').value = Math.round(R.tratt * 100);
+    $('fUnita').value = R.ferieUnita === 'ore' ? 'ore' : 'giorni'; $('fAnno').value = R.ferieAnno || 0; $('fResiduo').value = R.ferieResiduo || 0;
+    $('fSab').checked = R.ferieSabato !== false; $('fOre').value = ferie ? ferie.oreGiorno : '';
+    etichetteFerie();
+  }
+  function etichetteFerie() {
+    const u = $('fUnita').value === 'ore' ? 'ore' : 'giorni';
+    $('fAnnoLbl').innerHTML = 'Ferie all\'anno<small>' + u + ' dal contratto</small>';
+    $('fResLbl').innerHTML = 'Residuo dell\'anno prima<small>' + u + ' non godute che porti avanti</small>';
+  }
+  function apriRegole() {
+    apriSezione('regoleBox');
+    setTimeout(() => $('rOreMese').focus(), 350);
+  }
+  async function salvaRegole() {
+    salvaSubito();
+    $('salvaRegole').disabled = $('salvaFerie').disabled = true; stato('Salvataggio impostazioni…');
+    try {
+      const r = await chiama('salvaRegole', {
+        oreMese: $('rOreMese').value, paga: $('rPaga').value, pStra: $('rStra').value, pFest: $('rFest').value,
+        tratt: $('rTratt').value, domenica: $('rDom').checked, locali: $('rLoc').value,
+        ferieAnno: $('fAnno').value, ferieResiduo: $('fResiduo').value, ferieUnita: $('fUnita').value, ferieSabato: $('fSab').checked, ferieOre: $('fOre').value,
+      }, anno, mese);
+      if (r.tipi) setTipi(r.tipi);
+      applica(r); riempiRegole(); render();
+      stato('Impostazioni salvate ✓ Calcoli aggiornati', 'ok');
+    } catch (e) { stato('Errore: ' + msgErr(e), 'err'); }
+    $('salvaRegole').disabled = $('salvaFerie').disabled = false;
+  }
+
+  /* ================= suggerimento "schermata Home" ================= */
+  function suggerisciHome(daMostrare) {
+    const ua = navigator.userAgent || '';
+    const ios = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && 'ontouchend' in document);
+    const android = /Android/i.test(ua);
+    if (!daMostrare || DEMO || (!ios && !android)) return;
+    try { if (sessionStorage.getItem('homeNo') === '1') return; } catch (e) { }
+    $('homeTesto').innerHTML = ios
+      ? 'Così la apri con un tocco come un\'app. In <b>Safari</b> tocca il pulsante <b>Condividi</b> (il quadrato con la freccia ↑), poi <b>«Aggiungi alla schermata Home»</b> e <b>Aggiungi</b>.'
+      : 'Così la apri con un tocco come un\'app. In <b>Chrome</b> tocca <b>⋮</b> in alto a destra, poi <b>«Aggiungi a schermata Home»</b> e <b>Aggiungi</b>.';
+    $('home').classList.add('on');
+  }
+
+  /* ================= i miei turni ================= */
+  const NOMI_COL = { 1:'Lavanda', 2:'Salvia', 3:'Vinaccia', 4:'Fenicottero', 5:'Banana', 6:'Mandarino', 7:'Pavone', 8:'Grafite', 9:'Mirtillo', 10:'Basilico', 11:'Pomodoro' };
+  const HEX_COL = { 1:'#7986CB', 2:'#33B679', 3:'#8E24AA', 4:'#E67C73', 5:'#F6BF26', 6:'#F4511E', 7:'#039BE5', 8:'#616161', 9:'#3F51B5', 10:'#0B8043', 11:'#D50000' };
+  const ICONE_TURNO = ['☀️','🌅','🌇','🌙','🌃','⭐','📚','🎓','🏖️','✈️','🤒','🏥','📝','😴','🏠','🚑','🩺','💉','📟','📞','🚗','🛒','🍽️','☕','🔧','💻','📦','🧹','👶','🐾','❄️','🔥'];
+  const CAT = [
+    ['Lavoro', 'Turno con orario', 'es. Mattino 08:00–13:00'],
+    ['Ore variabili', 'Ore da indicare ogni volta', 'es. Corso: ti chiede quante ore'],
+    ['Retribuita', 'Assenza pagata', 'es. Ferie, malattia, permesso'],
+    ['Non retribuita', 'Assenza non pagata', 'es. Aspettativa, permesso non retribuito'],
+    ['Riposo', 'Giorno libero', 'nessuna ora, non va nel calendario'],
+  ];
+  const MODELLI = [
+    { nome:'Notte', sigla:'N', icona:'🌙', colCal:9, cat:'Lavoro', inizio:'22:00', fine:'06:00', pausa:0 },
+    { nome:'Ferie', sigla:'F', icona:'🏖️', colCal:10, cat:'Retribuita', ore:8 },
+    { nome:'Malattia', sigla:'MA', icona:'🤒', colCal:11, cat:'Retribuita', ore:8 },
+    { nome:'Permesso', sigla:'PE', icona:'📝', colCal:7, cat:'Retribuita', ore:4 },
+    { nome:'Riposo', sigla:'R', icona:'😴', colCal:8, cat:'Riposo' },
+    { nome:'Reperibilità', sigla:'RE', icona:'📟', colCal:4, cat:'Ore variabili', ore:2 },
+  ];
+  const coloreTesto = hex => { const h = hex.replace('#', ''); const r = parseInt(h.substr(0, 2), 16), g = parseInt(h.substr(2, 2), 16), b = parseInt(h.substr(4, 2), 16); return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.6 ? '#000000' : '#ffffff'; };
+  let ed = null; // tipo in modifica
+  let tornaAlMenu = null; // giorni da riaprire dopo aver creato un turno dal menu del giorno
+
+  function renderTipi() {
+    const box = $('tLista'); box.innerHTML = '';
+    const riga = t => {
+      const b = document.createElement('button'); if (t.attivo === false) b.className = 'nasc';
+      b.innerHTML = '<span class="chipbig"></span><span><span class="nm"></span><span class="or"></span></span><span class="fr">›</span>';
+      const c = b.querySelector('.chipbig'); c.textContent = (t.icona || '') + t.sigla; c.style.background = t.colore; c.style.color = t.testo;
+      b.querySelector('.nm').textContent = t.nome; b.querySelector('.or').textContent = orarioDi(t);
+      b.onclick = () => apriEditor(t);
+      return b;
+    };
+    tipi.forEach(t => box.appendChild(riga(t)));
+    const nasc = tutti.filter(t => t.attivo === false);
+    if (nasc.length) {
+      const sep = document.createElement('div'); sep.className = 'sep'; sep.textContent = 'Nascosti (usati in turni passati) — tocca per ripristinare';
+      box.appendChild(sep); nasc.forEach(t => box.appendChild(riga(t)));
+    }
+    if (!tutti.length) box.innerHTML = '<div class="det-vuoto">Nessun turno: creane uno.</div>';
+  }
+
+  function apriEditor(t) {
+    const nuovo = !t;
+    ed = { originale: nuovo ? '' : t.nome, nome: t ? t.nome : '', sigla: t ? t.sigla : '', icona: t ? (t.icona || '') : '', colCal: t ? (t.colCal || 1) : 7,
+      cat: t ? t.cat : 'Lavoro', inizio: t ? t.inizio || '' : '', fine: t ? t.fine || '' : '', pausa: t ? t.pausa || 0 : 0, ore: t ? t.oreDef || '' : '' };
+    $('edTitolo').textContent = nuovo ? 'Nuovo turno' : (t.attivo === false ? 'Ripristina turno' : 'Modifica turno');
+    $('edElimina').hidden = nuovo;
+    $('edSalva').textContent = !nuovo && t.attivo === false ? 'Ripristina' : 'Salva';
+    const mb = $('edModelli'); mb.innerHTML = ''; mb.hidden = !nuovo;
+    if (nuovo) MODELLI.filter(m => !perNome[m.nome.toLowerCase()]).forEach(m => {
+      const b = document.createElement('button'); b.textContent = m.icona + ' ' + m.nome;
+      b.onclick = () => { Object.assign(ed, { inizio: '', fine: '', pausa: 0, ore: '' }, m); riempiEditor(); };
+      mb.appendChild(b);
+    });
+    $('edErr').hidden = true;
+    riempiEditor();
+    $('ed').classList.add('on');
+    if (nuovo) setTimeout(() => $('edNome').focus(), 60);
+  }
+
+  function riempiEditor() {
+    $('edNome').value = ed.nome; $('edSigla').value = ed.sigla;
+    $('edInizio').value = ed.inizio; $('edFine').value = ed.fine; $('edPausa').value = ed.pausa;
+    $('edOre').value = ed.ore;
+    const cb = $('edCat'); cb.innerHTML = '';
+    CAT.forEach(([k, t, d]) => {
+      const b = document.createElement('button'); b.className = ed.cat === k ? 'on' : '';
+      b.innerHTML = '<span></span><small></small>'; b.querySelector('span').textContent = t; b.querySelector('small').textContent = d;
+      b.onclick = () => { leggiEditor(); ed.cat = k; riempiEditor(); };
+      cb.appendChild(b);
+    });
+    $('edOrari').hidden = ed.cat !== 'Lavoro';
+    $('edOreBox').hidden = !(ed.cat === 'Ore variabili' || ed.cat === 'Retribuita');
+    $('edOreLbl').textContent = ed.cat === 'Retribuita' ? 'Ore pagate per ogni giorno' : 'Ore proposte di solito';
+    const ib = $('edIcone'); ib.innerHTML = '';
+    const nessuna = document.createElement('button'); nessuna.className = 'aa' + (ed.icona ? '' : ' on'); nessuna.textContent = 'Aa'; nessuna.title = 'Nessuna icona (solo sigla)';
+    nessuna.onclick = () => { leggiEditor(); ed.icona = ''; riempiEditor(); }; ib.appendChild(nessuna);
+    ICONE_TURNO.forEach(ic => {
+      const b = document.createElement('button'); b.textContent = ic; if (ed.icona === ic) b.className = 'on';
+      b.onclick = () => { leggiEditor(); ed.icona = ic; riempiEditor(); }; ib.appendChild(b);
+    });
+    const kb = $('edColori'); kb.innerHTML = '';
+    Object.keys(HEX_COL).forEach(n => {
+      const b = document.createElement('button'); b.style.background = HEX_COL[n]; b.title = NOMI_COL[n]; b.setAttribute('aria-label', NOMI_COL[n]);
+      if (+n === +ed.colCal) b.className = 'on';
+      b.onclick = () => { leggiEditor(); ed.colCal = +n; riempiEditor(); }; kb.appendChild(b);
+    });
+    aggiornaAnteprima();
+  }
+  function leggiEditor() {
+    ed.nome = $('edNome').value.trim(); ed.sigla = $('edSigla').value.trim().toUpperCase();
+    ed.inizio = $('edInizio').value; ed.fine = $('edFine').value; ed.pausa = $('edPausa').value; ed.ore = $('edOre').value;
+  }
+  function aggiornaAnteprima() {
+    leggiEditor();
+    const hex = HEX_COL[ed.colCal] || '#9aa0a6', c = $('edChip');
+    c.textContent = (ed.icona || '') + (ed.sigla || '?'); c.style.background = hex; c.style.color = coloreTesto(hex);
+    const finto = { cat: ed.cat, inizio: ed.inizio, fine: ed.fine, pausa: +ed.pausa || 0, oreDef: +ed.ore || 0 };
+    $('edAnt').innerHTML = '<b>' + escapeHtml(ed.nome || 'Nome del turno') + '</b><small>' + escapeHtml(orarioDi(finto) + ' · ' + NOMI_COL[ed.colCal]) + '</small>';
+  }
+
+  async function salvaEditor() {
+    leggiEditor();
+    const err = t => { $('edErr').textContent = t; $('edErr').hidden = false; };
+    if (!ed.nome) return err('Scrivi il nome del turno.');
+    if (!ed.sigla) return err('Scrivi una sigla da 1 a 3 lettere (es. N).');
+    if (ed.cat === 'Lavoro' && (!ed.inizio || !ed.fine)) return err('Indica l\'orario di inizio e di fine.');
+    const doppione = tutti.find(t => t.nome !== ed.originale && (t.nome.toLowerCase() === ed.nome.toLowerCase() || t.sigla.toUpperCase() === ed.sigla));
+    if (doppione) return err(doppione.nome.toLowerCase() === ed.nome.toLowerCase() ? 'Esiste già un turno con questo nome.' : 'La sigla ' + ed.sigla + ' è già usata da «' + doppione.nome + '».');
+    salvaSubito();
+    // la finestra si chiude subito; se il salvataggio non riesce si riapre con il messaggio
+    const copia = Object.assign({}, ed), giorniMenu = tornaAlMenu;
+    tornaAlMenu = null;
+    $('ed').classList.remove('on'); $('edErr').hidden = true;
+    stato('Salvataggio del turno «' + copia.nome + '»…');
+    try {
+      const r = await chiama('salvaTipo', { nome: copia.nome, sigla: copia.sigla, icona: copia.icona, colCal: copia.colCal, cat: copia.cat,
+        inizio: copia.inizio, fine: copia.fine, pausa: copia.pausa, ore: copia.ore }, copia.originale, anno, mese);
+      setTipi(r.tipi); applica(r); render();
+      stato('Turno «' + copia.nome + '» salvato ✓', 'ok');
+      if (copia.originale) sincronizzaCalendario(true);
+      if (giorniMenu) { apriMenu(giorniMenu.giorni); scelti = giorniMenu.scelti.concat(copia.nome); renderScelte(); }
+    } catch (e) {
+      stato('');
+      ed = copia; tornaAlMenu = giorniMenu; riempiEditor(); $('ed').classList.add('on'); err(msgErr(e));
+    }
+  }
+
+  async function eliminaEditor() {
+    if (!ed || !ed.originale) return;
+    if (!confirm('Eliminare il turno «' + ed.originale + '»? Se è già stato usato verrà solo nascosto dal menu.')) return;
+    salvaSubito();
+    try {
+      const r = await chiama('eliminaTipo', ed.originale, anno, mese);
+      setTipi(r.tipi); applica(r); render();
+      $('ed').classList.remove('on');
+      stato(r.esito === 'nascosto' ? 'Turno nascosto: quelli già inseriti restano nei conteggi' : 'Turno eliminato', 'ok');
+    } catch (e) { $('edErr').textContent = msgErr(e); $('edErr').hidden = false; }
+  }
+
+  /* ================= account e benvenuto ================= */
+  function mostraAccount(r) {
+    urlApp = r.urlApp || '';
+    $('account').hidden = false;
+    if (urlApp) { $('cambiaAccount').href = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(urlApp); $('cambiaAccount').hidden = false; }
+  }
+  function apriBenvenuto(r) {
+    $('benvAcc').textContent = r.email ? 'Accesso effettuato con ' + r.email + '. Ho preparato tutto il necessario:' : 'Ho preparato tutto il necessario:';
+    $('benvDrive').textContent = 'Il mio Drive › ' + (r.cartella || 'AppTurni › Strafobico') + ' › foglio «Turni lavoro»';
+    $('benv').classList.add('on');
+  }
+  function apriSezione(id) {
+    $('benv').classList.remove('on'); $('det').classList.remove('on');
+    $('impBox').open = true;
+    setTimeout(() => $(id).scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  }
+
+  /* ================= tocco sui giorni ================= */
+  function tocca(k) {
+    if (!tipi.length) return;
+    if ($('multi').checked) {
+      if (selezionati.has(k)) selezionati.delete(k); else selezionati.add(k);
+      aggiornaBarra(); render();
+    } else apriMenu([k]);
+  }
+
+  function aggiornaBarra() {
+    const on = $('multi').checked, n = selezionati.size;
+    $('barra').classList.toggle('on', on);
+    $('cnt').textContent = n === 1 ? '1 giorno' : n + ' giorni';
+    $('aggiungi').disabled = !n;
+  }
+
+  /* ================= menu a comparsa ================= */
+  function apriMenu(lista) {
+    bersagli = lista.slice().sort();
+    const primi = attuale(bersagli[0]).map(v => v.nome);
+    const comuni = primi.filter(nome => bersagli.every(k => attuale(k).some(v => v.nome === nome)));
+    scelti = tipi.filter(t => comuni.includes(t.nome)).map(t => t.nome);
+    oreScelte = {};
+    bersagli.forEach(k => attuale(k).forEach(v => { if (v.ore != null && !(v.nome in oreScelte)) oreScelte[v.nome] = +v.ore; }));
+
+    if (bersagli.length === 1) {
+      $('fTitolo').textContent = dataLunga(bersagli[0]);
+      const cur = attuale(bersagli[0]);
+      $('fSotto').textContent = (proposta && dubbi.has(bersagli[0]) ? 'Nella foto qui c\'è qualcosa che non ho letto bene: controlla. ' : '') +
+        (cur.length ? 'Ora: ' + descrivi(cur) + ' · puoi sceglierne più di uno' : 'Scegli uno o più turni');
+    } else {
+      $('fTitolo').textContent = bersagli.length + ' giorni selezionati';
+      $('fSotto').textContent = 'I turni scelti sostituiranno quelli già presenti in questi giorni';
+    }
+    renderScelte();
+    $('passo1').hidden = false; $('passo2').hidden = true;
+    $('velo').classList.add('on');
+  }
+
+  function renderScelte() {
+    const box = $('fScelte'); box.innerHTML = '';
+    tipi.forEach(t => {
+      const b = document.createElement('button');
+      b.className = 'scelta' + (scelti.includes(t.nome) ? ' on' : '');
+      b.innerHTML = '<span class="sg"></span><span class="tx"><span class="nm"></span><span class="or"></span></span><span class="ck">✓</span>';
+      const sg = b.querySelector('.sg'); sg.textContent = t.icona || t.sigla; sg.style.background = t.colore; sg.style.color = t.testo;
+      if (t.icona) sg.style.fontSize = '19px';
+      b.querySelector('.nm').textContent = t.nome + ' (' + t.sigla + ')';
+      b.querySelector('.or').textContent = ferie && t.nome === ferie.nome
+        ? 'giorno di ferie' + (bersagli.length === 1 && !giornoDiFerie(bersagli[0]) ? ' (questo giorno non le scala: festivo)' : ' · scala dal conteggio')
+        : orarioDi(t);
+      b.onclick = () => {
+        const i = scelti.indexOf(t.nome), fer = ferie && ferie.nome;
+        if (i >= 0) scelti.splice(i, 1);
+        else if (t.nome === fer) scelti = [t.nome];            // giorno di ferie: niente altri turni
+        else { scelti = scelti.filter(x => x !== fer); scelti.push(t.nome); }
+        renderScelte();
+      };
+      box.appendChild(b);
+    });
+    $('fConferma').textContent = scelti.length ? 'Conferma' : 'Conferma: nessun turno';
+  }
+
+  function chiudiMenu() { $('velo').classList.remove('on'); bersagli = []; }
+
+  function conferma() {
+    codaOre = tipi.filter(t => scelti.includes(t.nome) && t.cat === 'Ore variabili').map(t => t.nome);
+    if (codaOre.length) chiediOre(0); else applicaScelta();
+  }
+
+  function chiediOre(i) {
+    const nome = codaOre[i], t = perNome[nome.toLowerCase()];
+    $('passo1').hidden = true; $('passo2').hidden = false;
+    $('oTitolo').textContent = 'Quante ore di ' + nome.toLowerCase() + '?';
+    $('oSotto').textContent = bersagli.length === 1 ? dataLunga(bersagli[0]) : 'Stesse ore per i ' + bersagli.length + ' giorni selezionati';
+    $('oreIn').value = oreScelte[nome] || t.oreDef || 4;
+    $('passo2').dataset.i = i;
+    renderRapide();
+    setTimeout(() => { $('oreIn').focus(); $('oreIn').select(); }, 50);
+  }
+
+  function renderRapide() {
+    const box = $('rapide'); box.innerHTML = '';
+    [1, 2, 3, 4, 5, 6, 8].forEach(h => {
+      const b = document.createElement('button'); b.textContent = h + ' h';
+      if (+$('oreIn').value === h) b.className = 'on';
+      b.onclick = () => { $('oreIn').value = h; renderRapide(); };
+      box.appendChild(b);
+    });
+  }
+
+  function cambiaOre(delta) {
+    const v = Math.min(24, Math.max(0.5, (parseFloat(String($('oreIn').value).replace(',', '.')) || 0) + delta));
+    $('oreIn').value = v; renderRapide();
+  }
+
+  function salvaOre() {
+    const v = parseFloat(String($('oreIn').value).replace(',', '.'));
+    if (!(v > 0 && v <= 24)) { $('oreIn').focus(); return; }
+    const i = +$('passo2').dataset.i;
+    oreScelte[codaOre[i]] = Math.round(v * 100) / 100;
+    if (i + 1 < codaOre.length) chiediOre(i + 1); else applicaScelta();
+  }
+
+  function applicaScelta() {
+    const lista = tipi.filter(t => scelti.includes(t.nome)).map(t =>
+      t.cat === 'Ore variabili' ? { nome: t.nome, ore: oreScelte[t.nome] || t.oreDef || 4 } : { nome: t.nome });
+    const giorniFatti = bersagli.slice();
+    chiudiMenu();
+    giorniFatti.forEach(k => imposta(k, lista.map(v => Object.assign({}, v))));
+    if (giorniFatti.length > 1 || selezionati.size) { selezionati.clear(); aggiornaBarra(); }
+    render();
+    if (proposta) { aggiornaProposta(); return; }
+    if (Object.keys(modifiche).length) { stato('Modifiche da salvare…'); clearTimeout(timer); timer = setTimeout(salva, 700); }
+  }
+
+  function imposta(k, lista) {
+    if (proposta) { proposta[k] = lista; dubbi.delete(k); return; }
+    const base = (inViaggio && k in inViaggio) ? inViaggio[k] : (giorni[k] || []);
+    if (chiave(lista) === chiave(base)) delete modifiche[k]; else modifiche[k] = lista;
+  }
+
+  /* ================= salvataggio automatico ================= */
+  function salvaSubito() { if (Object.keys(modifiche).length) { clearTimeout(timer); salva(); } }
+
+  async function salva() {
+    if (inViaggio || !Object.keys(modifiche).length) return;
+    inViaggio = modifiche; modifiche = {};
+    const a = anno, m = mese;
+    stato('Salvataggio in corso…');
+    try {
+      const r = await chiama('salvaGiorni', inViaggio, a, m);
+      Object.keys(inViaggio).forEach(k => { if (inViaggio[k].length) giorni[k] = inViaggio[k]; else delete giorni[k]; });
+      if (a === anno && m === mese) applica(r);
+      inViaggio = null;
+      stato(DEMO ? 'Salvato nell\'anteprima (non su Google)' : 'Salvato ✓ · aggiorno Google Calendar…', 'ok');
+      sincronizzaCalendario(false);
+    } catch (e) {
+      Object.keys(inViaggio).forEach(k => { if (!(k in modifiche)) modifiche[k] = inViaggio[k]; });
+      inViaggio = null;
+      stato('Errore nel salvataggio: ' + msgErr(e) + ' — riprovo tra poco', 'err');
+      clearTimeout(timer); timer = setTimeout(salva, 5000);
+    }
+    render();
+    if (Object.keys(modifiche).length) { clearTimeout(timer); timer = setTimeout(salva, 700); }
+  }
+
+  /* =====================================================================
+     IMPORTAZIONE DA IMMAGINE
+     1) lettura dell'intera immagine → riga dei giorni e riga del tuo nome
+     2) lettura cella per cella della tua riga (solo M, P, Corso)
+     Tutto avviene nel browser con Tesseract.js: nessun invio a server.
+     ===================================================================== */
+  const TESSERACT_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+  let lettore = null, ultimaImmagine = null;
+
+  function passoImp(n) { [1, 2, 3, 4].forEach(i => { $('imp' + i).hidden = i !== n; }); }
+  function apriImp() {
+    if (!tipi.length) return;
+    $('impMese').textContent = MESI[mese - 1] + ' ' + anno;
+    if (!$('impNome').value) $('impNome').value = nomeTab;
+    passoImp(1); $('imp').classList.add('on');
+    if (!$('impNome').value) setTimeout(() => $('impNome').focus(), 50);
+  }
+  function chiudiImp() { $('imp').classList.remove('on'); $('impFile').value = ''; }
+  function progresso(p, testo) { $('impBar').style.width = Math.round(p * 100) + '%'; if (testo) $('impFase').textContent = testo; }
+
+  function caricaScript(url) {
+    return new Promise((ok, ko) => {
+      if (window.Tesseract) return ok();
+      const s = document.createElement('script'); s.src = url; s.onload = ok;
+      s.onerror = () => ko(new Error('non riesco a scaricare il lettore di testo: controlla la connessione'));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function preparaLettore() {
+    if (lettore) return lettore;
+    progresso(0.03, 'Scarico il lettore di testo (solo la prima volta)…');
+    await caricaScript(TESSERACT_URL);
+    lettore = await Tesseract.createWorker('eng', 1, {
+      logger: m => { if (m.status && /load|init/i.test(m.status) && m.progress != null) progresso(0.03 + 0.17 * m.progress); },
+    });
+    return lettore;
+  }
+
+  function immagineDaFile(file) {
+    return new Promise((ok, ko) => {
+      const url = URL.createObjectURL(file), img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); ok(img); };
+      img.onerror = () => ko(new Error('il file non sembra un\'immagine'));
+      img.src = url;
+    });
+  }
+
+  /** Immagine in scala di grigi, ingrandita perché il testo sia ben leggibile. */
+  function preparaTela(img) {
+    // le immagini piccole vengono ingrandite molto: il lettore lavora bene con lettere alte almeno 25-30 pixel
+    const w = img.naturalWidth, h = img.naturalHeight, s = Math.min(5, Math.max(1, 3200 / w));
+    const c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s); c.scala = s;
+    const x = c.getContext('2d', { willReadFrequently: true });
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(img, 0, 0, c.width, c.height);
+    // foto un po' storta: la raddrizzo (le linee e le righe della tabella devono essere orizzontali)
+    const ang = inclinazione(x, c.width, c.height);
+    if (Math.abs(ang) > 0.12) {
+      x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+      x.save(); x.translate(c.width / 2, c.height / 2); x.rotate(-ang * Math.PI / 180);
+      x.drawImage(img, -c.width / 2, -c.height / 2, c.width, c.height); x.restore();
+    }
+    c.inclinazione = ang;
+    const id = x.getImageData(0, 0, c.width, c.height), p = id.data;
+    for (let i = 0; i < p.length; i += 4) { const g = 0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]; p[i] = p[i + 1] = p[i + 2] = g; }
+    c.linee = togliGriglia(p, c.width, c.height, s);
+    x.putImageData(id, 0, 0);
+    return c;
+  }
+
+  /**
+   * Di quanti gradi è inclinata la tabella: provo piccole rotazioni e tengo quella in cui
+   * i pixel scuri si allineano meglio su righe orizzontali (righe di testo e linee della griglia).
+   */
+  function inclinazione(ctx, W, H) {
+    const k = Math.min(1, 1000 / W), w = Math.round(W * k), h = Math.round(H * k);
+    const t = document.createElement('canvas'); t.width = w; t.height = h;
+    const tx = t.getContext('2d', { willReadFrequently: true }); tx.drawImage(ctx.canvas, 0, 0, w, h);
+    const p = tx.getImageData(0, 0, w, h).data, xs = [], ys = [];
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4; if (0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2] < 150) { xs.push(x - w / 2); ys.push(y); }
+    }
+    if (xs.length < 200) return 0;
+    const passi = Math.max(1, Math.floor(xs.length / 60000));
+    const punteggio = a => {
+      const tg = Math.tan(a * Math.PI / 180), b = new Float64Array(h + w + 2), off = w / 2 + 1;
+      for (let i = 0; i < xs.length; i += passi) { const yy = Math.round(ys[i] - xs[i] * tg + off); if (yy >= 0 && yy < b.length) b[yy]++; }
+      let s = 0; for (let i = 0; i < b.length; i++) s += b[i] * b[i]; return s;
+    };
+    let best = 0, bs = punteggio(0);
+    for (let a = -4; a <= 4.001; a += 0.1) { const s = punteggio(a); if (s > bs * 1.0001) { bs = s; best = a; } }
+    const c0 = best;
+    for (let a = c0 - 0.1; a <= c0 + 0.1001; a += 0.02) { const s = punteggio(a); if (s > bs) { bs = s; best = a; } }
+    return Math.round(best * 100) / 100;
+  }
+
+  /**
+   * Cancella le linee della tabella (bordi delle celle): sono tratti scuri lunghi e dritti,
+   * molto più lunghi di qualsiasi lettera. Senza linee il lettore distingue meglio numeri e sigle.
+   */
+  function togliGriglia(p, w, h, scala) {
+    const T = 205;                                   // anche le linee grigie chiare
+    const scuro = i => p[i * 4] < T;
+    const off = Math.ceil((scala || 1) * 2) + 2;     // spessore massimo di una linea (dopo l'ingrandimento)
+    const lungoO = Math.max(60, Math.round(w * 0.12)), lungoV = Math.max(60, Math.round(h * 0.22));
+    const cancella = new Uint8Array(w * h), vConta = new Uint32Array(w), hConta = new Uint32Array(h);
+    // posizione delle linee: una linea è una striscia sottile più scura di quello che ha ai due lati,
+    // qualunque sia il colore delle celle vicine (anche fucsia o rosso)
+    const sa = off + 1, gr = i => p[i * 4];
+    const cresta = (i, passo) => { const v = gr(i); return v < 240 && v < gr(i - passo) - 25 && v < gr(i + passo) - 25; };
+    // una linea è lunga e sottile: sopra e sotto (o a destra e sinistra) deve essere chiaro,
+    // altrimenti è il fondo colorato di una cella e non va toccato
+    const sottileO = (y, x1, x2) => {
+      let n = 0, sc = 0;
+      for (const yy of [y - off, y + off]) { if (yy < 0 || yy >= h) continue; for (let x = x1; x < x2; x += 3) { n++; if (scuro(yy * w + x)) sc++; } }
+      return n === 0 || sc / n < 0.5;
+    };
+    const sottileV = (x, y1, y2) => {
+      let n = 0, sc = 0;
+      for (const xx of [x - off, x + off]) { if (xx < 0 || xx >= w) continue; for (let y = y1; y < y2; y += 3) { n++; if (scuro(y * w + xx)) sc++; } }
+      return n === 0 || sc / n < 0.5;
+    };
+    for (let y = 0; y < h; y++) {
+      let x = 0;
+      while (x < w) {
+        if (!scuro(y * w + x)) { x++; continue; }
+        let x2 = x; while (x2 < w && scuro(y * w + x2)) x2++;
+        if (x2 - x >= lungoO && sottileO(y, x, x2)) for (let k = x; k < x2; k++) cancella[y * w + k] = 1;
+        x = x2;
+      }
+    }
+    for (let x = 0; x < w; x++) {
+      let y = 0;
+      while (y < h) {
+        if (!scuro(y * w + x)) { y++; continue; }
+        let y2 = y; while (y2 < h && scuro(y2 * w + x)) y2++;
+        if (y2 - y >= lungoV && sottileV(x, y, y2)) for (let k = y; k < y2; k++) cancella[k * w + x] = 1;
+        y = y2;
+      }
+    }
+    // altezza tipica di una riga, dalle linee orizzontali lunghe trovate sopra (serve a distinguere linee e lettere)
+    const lineeLunghe = [];
+    for (let y = 0; y < h; y++) { let s = 0; for (let x = 0; x < w; x += 2) s += cancella[y * w + x]; if (s * 2 > w * 0.3) lineeLunghe.push(y); }
+    const salti = []; for (let i = 1; i < lineeLunghe.length; i++) if (lineeLunghe[i] - lineeLunghe[i - 1] > sa * 3) salti.push(lineeLunghe[i] - lineeLunghe[i - 1]);
+    salti.sort((a, b) => a - b);
+    const altRiga = salti.length ? salti[Math.floor(salti.length / 2)] : 14 * (scala || 1);
+    // una linea è una striscia continua (al massimo piccole interruzioni dove incrocia altre linee)
+    // lunga almeno quasi tutta la cella; le lettere allineate in colonna invece hanno spazi tra una riga e l'altra
+    const buco = sa * 2 + 2, minV = altRiga * 0.7, minO = altRiga * 1.2;
+    for (let x = sa; x < w - sa; x++) {
+      let ini = -1, ult = -1;
+      for (let y = 0; y <= h; y++) {
+        if (y < h && cresta(y * w + x, 1 * sa)) { if (ini < 0 || y - ult > buco) { if (ini >= 0 && ult - ini >= minV) vConta[x] += ult - ini; ini = y; } ult = y; }
+      }
+      if (ini >= 0 && ult - ini >= minV) vConta[x] += ult - ini;
+    }
+    for (let y = sa; y < h - sa; y++) {
+      let ini = -1, ult = -1;
+      for (let x = 0; x <= w; x++) {
+        if (x < w && cresta(y * w + x, sa * w)) { if (ini < 0 || x - ult > buco) { if (ini >= 0 && ult - ini >= minO) hConta[y] += ult - ini; ini = x; } ult = x; }
+      }
+      if (ini >= 0 && ult - ini >= minO) hConta[y] += ult - ini;
+    }
+    // cancella le linee e i loro bordi sfumati
+    const r = Math.max(2, Math.ceil(scala || 1));
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      if (!cancella[y * w + x]) continue;
+      for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+        if (dx && dy) continue;
+        const xx = x + dx, yy = y + dy;
+        if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+        const i = (yy * w + xx) * 4;
+        if (cancella[yy * w + xx] || p[i] < 235) p[i] = p[i + 1] = p[i + 2] = 255;
+      }
+    }
+    // posizioni delle linee: servono a sapere dove iniziano e finiscono le celle (anche se larghe diverse)
+    const gruppi = (arr, min) => {
+      const out = []; let i = 0;
+      while (i < arr.length) {
+        if (arr[i] < min) { i++; continue; }
+        let j = i; while (j + 1 < arr.length && arr[j + 1] >= min) j++;
+        out.push([i, j]); i = j + 1;
+      }
+      return out;
+    };
+    // gruppi vicini (i due bordi di una linea spessa) → una sola linea [inizio, fine]
+    const unisci = a => a.reduce((o, s) => { const u = o[o.length - 1]; if (u && s[0] - u[1] <= sa * 2) u[1] = s[1]; else o.push(s.slice()); return o; }, []);
+    const lv = unisci(gruppi(vConta, Math.max(20, h * 0.25))), lo = unisci(gruppi(hConta, Math.max(40, w * 0.3)));
+    return { vx: lv.map(s => (s[0] + s[1]) / 2), hy: lo.map(s => (s[0] + s[1]) / 2) };
+  }
+
+
+  /**
+   * Usa le linee della tabella per trovare i bordi esatti di ogni cella della riga cercata.
+   * Le colonne possono avere larghezze diverse: ogni giorno viene associato alla colonna che ha sopra il suo numero.
+   * Restituisce null se la foto non ha linee di griglia utilizzabili (allora si usano le stime).
+   */
+  function cellePerLinee(r, tela) {
+    const L = tela.linee; if (!L || L.vx.length < 6) return null;
+    const vx = L.vx.slice().sort((a, b) => a - b);
+    if (vx[vx.length - 1] < tela.width - r.passo * 0.3) vx.push(tela.width - 1); // ultima colonna tagliata dal bordo della foto
+    const slot = [];
+    for (let i = 0; i + 1 < vx.length; i++) if (vx[i + 1] - vx[i] >= r.passo * 0.35) slot.push([vx[i], vx[i + 1]]);
+    // una linea non trovata unisce due o più colonne: divido la colonna larga in parti uguali
+    const larg = slot.map(s => s[1] - s[0]).sort((a, b) => a - b), tipica = larg[Math.floor(larg.length / 2)] || r.passo;
+    for (let i = slot.length - 1; i >= 0; i--) {
+      const k = Math.round((slot[i][1] - slot[i][0]) / tipica);
+      if (k >= 2 && slot[i][1] - slot[i][0] > tipica * 1.6) {
+        const [a, b] = slot[i], parti = [];
+        for (let j = 0; j < k; j++) parti.push([a + (b - a) * j / k, a + (b - a) * (j + 1) / k]);
+        slot.splice(i, 1, ...parti);
+      }
+    }
+    const slotDi = x => slot.findIndex(s => x > s[0] && x < s[1]);
+    const noti = {};
+    Object.keys(r.numeri).forEach(d => { const s = slotDi(r.numeri[d]); if (s >= 0) noti[d] = s; });
+    const giorniNoti = Object.keys(noti).map(Number).sort((a, b) => a - b);
+    if (giorniNoti.length < 4) return null;
+    // la griglia vale solo se è coerente con i numeri letti: giorni diversi in colonne diverse, nell'ordine giusto
+    if (new Set(giorniNoti.map(d => noti[d])).size < giorniNoti.length) return null;
+    let coerenti = 0;
+    for (let i = 1; i < giorniNoti.length; i++) if (noti[giorniNoti[i]] - noti[giorniNoti[i - 1]] === giorniNoti[i] - giorniNoti[i - 1]) coerenti++;
+    if (coerenti < (giorniNoti.length - 1) * 0.8) return null;
+    const indice = d => {
+      if (noti[d] != null) return noti[d];
+      const sotto = giorniNoti.filter(x => x < d), sopra = giorniNoti.filter(x => x > d);
+      const d1 = sotto[sotto.length - 1], d2 = sopra[0];
+      if (d1 != null && d2 != null) return (noti[d2] - noti[d1] === d2 - d1) ? noti[d1] + (d - d1) : -1;
+      if (d1 != null) return noti[d1] + (d - d1);
+      if (d2 != null) return noti[d2] - (d2 - d);
+      return -1;
+    };
+    const colonna = d => { const i = indice(d); return i >= 0 && i < slot.length ? slot[i] : null; };
+    // riga: tra la linea orizzontale sopra e quella sotto il nome
+    const hy = (L.hy || []).slice().sort((a, b) => a - b), yc = r.riga.yc;
+    const su = hy.filter(y => y < yc), giu = hy.filter(y => y > yc);
+    let riga = [r.riga.top, r.riga.bottom];
+    if (su.length && giu.length) {
+      const t = su[su.length - 1], b = giu[0];
+      // la riga deve essere alta circa come le altre (se manca una linea si usa la stima)
+      if (b - t > r.riga.h * 0.6 && b - t < r.riga.h * 1.5) riga = [t, b];
+      else if (yc - t > r.riga.h * 0.25 && yc - t < r.riga.h * 0.85) riga = [t, Math.min(r.riga.bottom, t + r.riga.h)];
+      else if (b - yc > r.riga.h * 0.25 && b - yc < r.riga.h * 0.85) riga = [Math.max(r.riga.top, b - r.riga.h), b];
+    }
+    return { colonna, centro: d => { const c = colonna(d); return c ? (c[0] + c[1]) / 2 : null; }, riga, margine: Math.ceil((tela.scala || 1) * 1.5) + 2 };
+  }
+
+  /**
+   * "Impronta" della forma scritta in una cella (ritaglio già centrato e ingrandito da tagliaCella):
+   * una griglia 48×20 bianco/nero più il rapporto larghezza/altezza. Serve a confrontare celle tra loro.
+   */
+  function firmaForma(c) {
+    const W = 48, H = 20, larg = Math.max(1, c.width - 48), t = document.createElement('canvas');
+    t.width = W; t.height = H;
+    const x = t.getContext('2d', { willReadFrequently: true });
+    x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+    x.drawImage(c, 24, 24, larg, 48, 0, 0, Math.min(W, larg * H / 48), H);
+    const p = x.getImageData(0, 0, W, H).data, v = new Uint8Array(W * H);
+    for (let i = 0; i < v.length; i++) v[i] = p[i * 4] < 140 ? 1 : 0;
+    return { v, ar: larg / 48 };
+  }
+  function distanzaForme(a, b) {
+    let d = 0;
+    for (let i = 0; i < a.v.length; i++) d += a.v[i] !== b.v[i];
+    return d / a.v.length + 0.12 * Math.abs(a.ar - b.ar);
+  }
+  /**
+   * Nella stessa riga le sigle si ripetono: una cella che il lettore non ha capito viene confrontata
+   * con quelle lette con sicurezza; se la forma è quasi identica prende la stessa sigla.
+   * Corregge anche le letture isolate in disaccordo con tutte le celle dalla forma uguale (es. "MP" letto "M").
+   */
+  function confrontaForme(letti, incerti, forme) {
+    let campioni = Object.keys(letti).filter(d => forme[d]).map(d => ({ d: +d, k: letti[d].join('+'), f: forme[d] }));
+    if (campioni.length < 3) return;
+    const mediana = a => { const s = a.slice().sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+    // 0) una sigla singola scritta in uno spazio molto più largo del solito (es. "MP" letto "M"): meglio segnarla da controllare
+    const arPer = {};
+    campioni.forEach(c => { (arPer[c.k] = arPer[c.k] || []).push(c.f.ar); });
+    campioni.forEach(c => {
+      if (c.k.includes('+') || (arPer[c.k] || []).length < 3) return;
+      if (c.f.ar > mediana(arPer[c.k]) * 1.6) { delete letti[c.d]; incerti.push(c.d); }
+    });
+    campioni = campioni.filter(c => letti[c.d]);
+    // 1) celle incerte: prendono la sigla solo se la forma è quasi identica a più celle sicure con la stessa sigla
+    const vicini = (f, escludi) => campioni.filter(c => c.d !== escludi).map(c => ({ k: c.k, dist: distanzaForme(f, c.f) })).sort((a, b) => a.dist - b.dist);
+    for (let i = incerti.length - 1; i >= 0; i--) {
+      const d = incerti[i]; if (!forme[d]) continue;
+      const v = vicini(forme[d], d);
+      if (v.length < 2) continue;
+      const k = v[0].k, altro = v.find(x => x.k !== k);
+      if (v[0].dist < 0.09 && v[1].k === k && v[1].dist < 0.11 && (!altro || altro.dist > v[1].dist * 1.5)) {
+        letti[d] = k.split('+'); incerti.splice(i, 1);
+      }
+    }
+    incerti.sort((a, b) => a - b);
+  }
+
+
+  /** Ritaglia una cella; restituisce null se è vuota (niente "inchiostro"). */
+  function tagliaCella(tela, x0, y0, x1, y1, duro) {
+    x0 = Math.max(0, Math.round(x0)); y0 = Math.max(0, Math.round(y0));
+    x1 = Math.min(tela.width, Math.round(x1)); y1 = Math.min(tela.height, Math.round(y1));
+    const w = x1 - x0, h = y1 - y0; if (w < 3 || h < 3) return null;
+    const dati = tela.getContext('2d').getImageData(x0, y0, w, h), p = dati.data, n = w * h;
+    // colore di fondo = il grigio più frequente; la scritta è ciò che se ne stacca (più scura o più chiara)
+    const ist = new Array(256).fill(0);
+    for (let i = 0; i < p.length; i += 4) ist[p[i] | 0]++;
+    let fondo = 0; for (let i = 1; i < 256; i++) if (ist[i] > ist[fondo]) fondo = i;
+    let scuri = 0, chiari = 0;
+    // su una cella colorata (fucsia, rosso…) la scritta nera stacca meno dal fondo: basta meno contrasto
+    const dS = fondo >= 200 ? 60 : 35, dC = fondo <= 55 ? 60 : 35;
+    for (let i = 0; i < 256; i++) { if (i < fondo - dS) scuri += ist[i]; if (i > fondo + dC) chiari += ist[i]; }
+    const testoScuro = scuri >= chiari, inchiostro = testoScuro ? scuri : chiari;
+    if (inchiostro < Math.max(12, Math.min(n * 0.012, h * h * 0.02))) return null; // cella vuota (anche se colorata)
+    // immagine pulita: scritta nera su bianco, qualunque fosse il colore della cella
+    const ink = new Uint8Array(n);
+    // soglia a metà strada tra il fondo e l'inchiostro più marcato: tratti sottili anche se la foto è sfocata
+    let estremo = fondo;
+    if (testoScuro) { let c = 0; for (let i = 0; i < 256; i++) { c += ist[i]; if (c >= inchiostro * 0.15) { estremo = i; break; } } }
+    else { let c = 0; for (let i = 255; i >= 0; i--) { c += ist[i]; if (c >= inchiostro * 0.15) { estremo = i; break; } } }
+    // su fondo chiaro conta solo l'inchiostro ben marcato (come prima); su fondo colorato ci si avvicina a metà strada
+    const soglia = testoScuro ? Math.min(fondo - dS, Math.max((fondo + estremo) / 2, fondo - 90))
+      : Math.max(fondo + dC, Math.min((fondo + estremo) / 2, fondo + 90));
+    for (let i = 0; i < n; i++) { const v = p[i * 4]; ink[i] = testoScuro ? v < soglia : v > soglia; }
+    // resti delle linee della griglia (righe o colonne quasi tutte "inchiostro") → via
+    // (un tratto continuo per quasi tutta la larghezza/altezza: le lettere hanno sempre degli spazi)
+    const via = new Uint8Array(n);
+    for (let yy = 0; yy < h; yy++) { let run = 0, max = 0; for (let xx = 0; xx < w; xx++) { run = ink[yy * w + xx] ? run + 1 : 0; if (run > max) max = run; } if (max > w * 0.85) for (let xx = 0; xx < w; xx++) if (ink[yy * w + xx]) { ink[yy * w + xx] = 0; via[yy * w + xx] = 1; } }
+    for (let xx = 0; xx < w; xx++) { let run = 0, max = 0; for (let yy = 0; yy < h; yy++) { run = ink[yy * w + xx] ? run + 1 : 0; if (run > max) max = run; } if (max > h * 0.85) for (let yy = 0; yy < h; yy++) if (ink[yy * w + xx]) { ink[yy * w + xx] = 0; via[yy * w + xx] = 1; } }
+    let minimo = 255, massimo = 0;
+    for (let i = 0; i < 256; i++) if (ist[i]) { if (i < minimo) minimo = i; if (i > massimo) massimo = i; }
+    let bx0 = w, by0 = h, bx1 = -1, by1 = -1, tot = 0;
+    for (let yy = 0; yy < h; yy++) for (let xx = 0; xx < w; xx++) {
+      const i = yy * w + xx, testo = ink[i];
+      // contrasto "morbido": il fondo diventa bianco, l'inchiostro più scuro nero, i bordi delle lettere restano grigi
+      // (così le lettere piccole non si impastano); su fondo bianco l'immagine resta com'era
+      const v = p[i * 4], q = testoScuro ? (v - minimo) / ((fondo - minimo) || 1) : (massimo - v) / ((massimo - fondo) || 1);
+      p[i * 4] = p[i * 4 + 1] = p[i * 4 + 2] = via[i] ? 255 : duro ? (testo ? 0 : 255) : Math.round(Math.max(0, Math.min(1, q)) * 255);
+      if (testo) { tot++; if (xx < bx0) bx0 = xx; if (xx > bx1) bx1 = xx; if (yy < by0) by0 = yy; if (yy > by1) by1 = yy; }
+    }
+    if (bx1 < 0 || tot < Math.max(12, Math.min(n * 0.012, h * h * 0.02))) return null;
+    const m = Math.round(h * 0.08);
+    bx0 = Math.max(0, bx0 - m); by0 = Math.max(0, by0 - m); bx1 = Math.min(w - 1, bx1 + m); by1 = Math.min(h - 1, by1 + m);
+    const bw = bx1 - bx0 + 1, bh = by1 - by0 + 1, k = 48 / bh;
+    const t = document.createElement('canvas'); t.width = w; t.height = h; t.getContext('2d').putImageData(dati, 0, 0);
+    const c = document.createElement('canvas');
+    c.width = Math.round(bw * k) + 48; c.height = 48 + 48;
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+    x.imageSmoothingQuality = 'high'; x.drawImage(t, bx0, by0, bw, bh, 24, 24, c.width - 48, 48);
+    return c;
+  }
+
+
+  async function leggiImmagine(file) {
+    passoImp(2); progresso(0, 'Preparazione…');
+    try {
+      const w = await preparaLettore();
+      if (file) {
+        const img = await immagineDaFile(file);
+        const tela = preparaTela(img);
+        progresso(0.22, 'Cerco i giorni e i nomi nella tabella…');
+        await w.setParameters({ tessedit_pageseg_mode: '11', tessedit_char_whitelist: '' });
+        const { data } = await w.recognize(tela);
+        const parole = (data.words || []).map(p => ({ t: p.text, x0: p.bbox.x0, y0: p.bbox.y0, x1: p.bbox.x1, y1: p.bbox.y1 }));
+        ultimaImmagine = { tela, parole };
+      }
+      if (!ultimaImmagine) throw new Error('nessuna immagine');
+      await analizza();
+    } catch (e) {
+      mostraErrore('Si è verificato un problema: ' + msgErr(e) + '.');
+    }
+  }
+
+  async function analizza() {
+    const { tela, parole } = ultimaImmagine, nome = $('impNome').value.trim();
+    const n = new Date(anno, mese, 0).getDate();
+    const r = leggiTabella(parole, nome, n);
+    if (r.errore === 'vuoto' || r.errore === 'intestazione') {
+      mostraErrore('Non trovo la riga con i numeri dei giorni (1, 2, 3…). Prova con uno screenshot più nitido, dritto e ritagliato sulla tabella, con la riga dei giorni ben visibile.');
+      return;
+    }
+    if (r.errore === 'nome') {
+      mostraErrore(nome ? 'Non trovo «' + nome + '» nella tabella.' : 'Scrivi il tuo nome com\'è nella tabella.', r.nomiTrovati);
+      return;
+    }
+
+    const w = lettore, griglia = cellePerLinee(r, tela);
+    // ai bordi della tabella un numero di giorno può sfuggire alla prima lettura: lo verifico cella per cella
+    await w.setParameters({ tessedit_pageseg_mode: '8', tessedit_char_whitelist: '0123456789' });
+    const numeroIn = async (d, box) => {
+      const xc = r.retta.a + r.retta.b * d, ins = griglia ? griglia.margine : 0;
+      const [x0, x1] = box ? [box[0] + ins, box[1] - ins] : [xc - r.passo * 0.48, xc + r.passo * 0.48];
+      const c = tagliaCella(tela, x0, r.intestazione.yc - r.intestazione.h * 1.1, x1, r.intestazione.yc + r.intestazione.h * 1.1);
+      const cd = tagliaCella(tela, x0, r.intestazione.yc - r.intestazione.h * 1.1, x1, r.intestazione.yc + r.intestazione.h * 1.1, true);
+      if (!c) return false;
+      // prima l'immagine "morbida", poi in bianco e nero puro (aiuta con le foto sfocate)
+      for (const [im, psm] of (d < 10 ? [[c, '8'], [c, '10'], [c, '7'], [cd, '8'], [cd, '10']] : [[c, '8'], [c, '7'], [cd, '8'], [cd, '7']])) {
+        await w.setParameters({ tessedit_pageseg_mode: psm });
+        const letto = (await w.recognize(im)).data.text.replace(/\D/g, ''), giusto = String(d);
+        if (parseInt(letto, 10) === d) return true;
+        // con la griglia confermata basta un numero a due cifre con una sola cifra sbagliata (foto sfocata: "23" per "28")
+        if (box && giusto.length === 2 && letto.length === 2 && (letto[0] === giusto[0] || letto[1] === giusto[1])) return true;
+      }
+      return false;
+    };
+    progresso(0.27, 'Controllo i bordi della tabella…');
+    if (griglia) {
+      // con le linee della griglia: colonne esatte anche se larghe diverse
+      while (r.dal > 1 && griglia.colonna(r.dal - 1) && griglia.colonna(r.dal - 1)[0] >= r.fineNome - r.passo * 0.2 && await numeroIn(r.dal - 1, griglia.colonna(r.dal - 1))) r.dal--;
+      while (r.al < n && griglia.colonna(r.al + 1) && await numeroIn(r.al + 1, griglia.colonna(r.al + 1))) r.al++;
+    }
+    while (!griglia && r.dal > 1) {
+      const xc = r.retta.a + r.retta.b * (r.dal - 1);
+      if (xc - r.passo / 2 < r.fineNome - r.passo * 0.2 || !(await numeroIn(r.dal - 1))) break;
+      r.dal--; r.colonne[r.dal] = xc;
+    }
+    while (!griglia && r.al < n) {
+      const xc = r.retta.a + r.retta.b * (r.al + 1);
+      if (xc + r.passo / 2 > tela.width + 2 || !(await numeroIn(r.al + 1))) break;
+      r.al++; r.colonne[r.al] = xc;
+    }
+
+    // seconda lettura: cella per cella, solo le lettere delle sigle e dei nomi dei tuoi turni
+    await w.setParameters({ tessedit_pageseg_mode: '8', tessedit_char_whitelist: letterePermesse(tipi) });
+    const giorniLetti = {}, incerti = [], forme = {};
+    for (let d = r.dal; d <= r.al; d++) {
+      progresso(0.3 + 0.68 * ((d - r.dal + 1) / (r.al - r.dal + 1)), 'Leggo il giorno ' + d + '…');
+      let cella;
+      if (griglia && griglia.colonna(d)) {
+        const [cx0, cx1] = griglia.colonna(d), [ry0, ry1] = griglia.riga, ins = griglia.margine;
+        cella = tagliaCella(tela, cx0 + ins, ry0 + ins, cx1 - ins, ry1 - ins);
+      } else {
+        const m = (r.riga.bottom - r.riga.top) * 0.05, xc = r.colonne[d];
+        cella = tagliaCella(tela, xc - r.passo * 0.46, r.riga.top + m, xc + r.passo * 0.46, r.riga.bottom - m);
+      }
+      if (!cella) continue;
+      forme[d] = firmaForma(cella);
+      let testo = (await w.recognize(cella)).data.text.trim();
+      if (!testo) {
+        await w.setParameters({ tessedit_pageseg_mode: '13' });
+        testo = (await w.recognize(cella)).data.text.trim();
+        await w.setParameters({ tessedit_pageseg_mode: '8' });
+      }
+      const cod = codiceTurno(testo, tipi);
+      if (cod.length) giorniLetti[d] = cod;
+      else if (r.giorni[d]) giorniLetti[d] = r.giorni[d];
+      else incerti.push(d);
+    }
+    await w.setParameters({ tessedit_pageseg_mode: '11', tessedit_char_whitelist: '' });
+    confrontaForme(giorniLetti, incerti, forme);
+
+    // conversione sigle → tipi di turno
+    const tipoPer = sg => tipi.find(t => t.sigla.toUpperCase() === sg);
+    const conta = {}; let doppi = 0;
+    const nuova = {};
+    for (let d = r.dal; d <= r.al; d++) {
+      const lista = (giorniLetti[d] || []).map(tipoPer).filter(Boolean);
+      if (lista.length > 1) doppi++;
+      lista.forEach(t => { conta[t.nome] = (conta[t.nome] || 0) + 1; });
+      nuova[iso(anno, mese, d)] = lista.map(t => t.cat === 'Ore variabili' ? { nome: t.nome, ore: t.oreDef || 4 } : { nome: t.nome });
+    }
+    importazione = { nuova, incerti: incerti.map(d => iso(anno, mese, d)), nome };
+
+    const elenco = tipi.filter(t => conta[t.nome]).map(t => (t.icona || t.sigla) + ' ' + escapeHtml(t.nome) + ' ' + conta[t.nome]);
+    const righe = ['Riga trovata: <b>' + escapeHtml(r.rigaTrovata) + '</b>',
+      'Giorni nella foto: ' + (r.dal === 1 && r.al === n ? 'tutto il mese' : 'dal ' + r.dal + ' al ' + r.al + ' ' + MESI[mese - 1] + ' (gli altri giorni non vengono toccati)'),
+      (elenco.length ? elenco.join(' · ') : 'nessun turno riconosciuto') + (doppi ? ' · ' + doppi + (doppi === 1 ? ' giorno doppio' : ' giorni doppi') : '')];
+    if (incerti.length) righe.push('<span style="color:var(--fest)">' + incerti.length + (incerti.length === 1 ? ' giorno' : ' giorni') + ' da controllare (segnati con ?)</span>');
+    const altezzaRiga = r.riga.h / (tela.scala || 1);
+    if (altezzaRiga < 18) righe.push('<span style="color:var(--fest)">⚠️ La foto è piccola (righe alte circa ' + Math.round(altezzaRiga) +
+      ' pixel): alcune lettere possono essere lette male. Per risultati migliori ingrandisci la tabella sullo schermo (o gira il telefono in orizzontale) e rifai lo screenshot, anche solo della parte con il tuo nome e i giorni.</span>');
+    if (r.meseTabella && r.meseTabella !== mese) righe.push('<span style="color:var(--fest)">Attenzione: la tabella sembra di ' + MESI[r.meseTabella - 1] + ', ma stai importando in ' + MESI[mese - 1] + '.</span>');
+    $('impRiass').innerHTML = righe.join('<br>');
+    riempiLetto();
+    const tC = tipi.find(t => t.cat === 'Ore variabili' && conta[t.nome]);
+    $('impOreBox').hidden = !tC;
+    if (tC) $('impOreBox').querySelector('label').textContent = 'Ore per ogni «' + tC.nome + '»';
+    if (tC) $('impOre').value = tC.oreDef || 4;
+    passoImp(4);
+  }
+  let importazione = null;
+
+  /** Testo letto dall'immagine, riga per riga: serve a capire perché una tabella non viene riconosciuta. */
+  function testoLetto() {
+    if (!ultimaImmagine || !ultimaImmagine.parole.length) return '(nessun testo riconosciuto nell\'immagine)';
+    const P = ultimaImmagine.parole.map(p => ({ t: p.t, x: p.x0, y: (p.y0 + p.y1) / 2, h: p.y1 - p.y0 })).sort((a, b) => a.y - b.y);
+    const hs = P.map(p => p.h).sort((a, b) => a - b), H = hs[Math.floor(hs.length / 2)] || 10;
+    const righe = [];
+    P.forEach(p => { const r = righe.find(r => Math.abs(r.y - p.y) < H * 0.6); if (r) r.el.push(p); else righe.push({ y: p.y, el: [p] }); });
+    return 'Immagine ' + ultimaImmagine.tela.width + '×' + ultimaImmagine.tela.height + ' px, ' + P.length + ' parole\n\n' +
+      righe.map(r => r.el.sort((a, b) => a.x - b.x).map(p => p.t).join('  ')).join('\n');
+  }
+  function riempiLetto() { document.querySelectorAll('.lettoTesto').forEach(e => { e.textContent = testoLetto(); }); }
+
+  function mostraErrore(testo, nomi) {
+    riempiLetto();
+    $('impFile').value = '';
+    $('impErr').textContent = testo;
+    const box = $('impNomi'); box.innerHTML = '';
+    (nomi || []).slice(0, 30).forEach(nm => {
+      const b = document.createElement('button'); b.textContent = nm;
+      b.onclick = () => { $('impNome').value = nm; passoImp(2); progresso(0.3, 'Leggo la riga di ' + nm + '…'); analizza().catch(e => mostraErrore(msgErr(e))); };
+      box.appendChild(b);
+    });
+    $('impNomiBox').hidden = !(nomi && nomi.length);
+    passoImp(3);
+  }
+
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+
+  /** Mostra quanto letto nel calendario come anteprima da controllare. */
+  function vediProposta() {
+    if (!importazione) return;
+    const oreC = parseFloat(String($('impOre').value).replace(',', '.'));
+    proposta = {};
+    Object.keys(importazione.nuova).forEach(k => {
+      proposta[k] = importazione.nuova[k].map(v => v.ore != null && oreC > 0 ? { nome: v.nome, ore: Math.round(oreC * 100) / 100 } : v);
+    });
+    dubbi = new Set(importazione.incerti);
+    const nome = importazione.nome;
+    if (nome && nome !== nomeTab) { nomeTab = nome; chiama('salvaImpostazioneUtente', 'nomeTab', nome).catch(() => {}); }
+    chiudiImp();
+    aggiornaProposta();
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function aggiornaProposta() {
+    const on = !!proposta;
+    $('prop').classList.toggle('on', on);
+    if (!on) return;
+    const nd = dubbi.size;
+    $('propTesto').innerHTML = '<b>Anteprima dalla foto.</b> Controlla i turni: tocca un giorno per correggerlo. ' +
+      (nd ? '<b style="color:var(--fest)">' + nd + (nd === 1 ? ' giorno segnato' : ' giorni segnati') + ' con ? da controllare.</b> ' : '') +
+      'Nei giorni della foto lasciati vuoti non ci sarà nessun turno; gli altri giorni del mese restano come sono.';
+  }
+
+  function confermaProposta() {
+    if (!proposta) return;
+    const p = proposta; proposta = null; dubbi = new Set();
+    Object.keys(p).forEach(k => imposta(k, p[k]));
+    aggiornaProposta(); render();
+    if (Object.keys(modifiche).length) { stato('Salvataggio dei turni importati…'); salvaSubito(); }
+    else stato('Nessuna differenza da salvare', 'ok');
+  }
+
+  function annullaProposta() { proposta = null; dubbi = new Set(); aggiornaProposta(); render(); stato(''); }
+
+  /*PARSER-START*/
+  /**
+   * Legge la riga di una persona da una tabella turni (nomi sulle righe, giorni sulle colonne).
+   * parole: [{ t: testo, x0, y0, x1, y1 }] con le posizioni restituite dall'OCR.
+   */
+  function leggiTabella(parole, nome, giorniMese) {
+    const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const W = parole.map(p => ({ t: String(p.t).trim(), x0: p.x0, y0: p.y0, x1: p.x1, y1: p.y1,
+      xc: (p.x0 + p.x1) / 2, yc: (p.y0 + p.y1) / 2, h: p.y1 - p.y0 })).filter(p => p.t);
+    if (!W.length) return { errore: 'vuoto' };
+    const mediana = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : 0; };
+    const H = mediana(W.map(p => p.h)) || 10;
+
+    // 1) riga d'intestazione: la riga con più numeri di giorno diversi (1..31, anche "03/11")
+    const numeri = W.map(p => {
+      const m = p.t.replace(/[^\d\/.\-]/g, '').match(/^(\d{1,2})(?:[\/.\-](\d{1,2}))?/);
+      if (!m || !/^\D{0,3}\d/.test(p.t)) return null;
+      const d = +m[1];
+      return d >= 1 && d <= 31 ? Object.assign({ d, mm: m[2] ? +m[2] : null }, p) : null;
+    }).filter(Boolean);
+    const righe = [];
+    numeri.slice().sort((a, b) => a.yc - b.yc).forEach(p => {
+      const r = righe.find(r => Math.abs(r.yc - p.yc) < H * 0.6);
+      if (r) { r.el.push(p); r.yc = r.el.reduce((s, q) => s + q.yc, 0) / r.el.length; } else righe.push({ yc: p.yc, el: [p] });
+    });
+    let migliore = null;
+    righe.forEach(r => {
+      // tieni la sequenza crescente più lunga (giorno che sale con la x)
+      const el = r.el.slice().sort((a, b) => a.xc - b.xc);
+      const lung = el.map(() => 1), prec = el.map(() => -1);
+      for (let i = 0; i < el.length; i++) for (let j = 0; j < i; j++)
+        if (el[j].d < el[i].d && lung[j] + 1 > lung[i]) { lung[i] = lung[j] + 1; prec[i] = j; }
+      let k = lung.indexOf(Math.max(...lung)); const seq = [];
+      while (k >= 0) { seq.unshift(el[k]); k = prec[k]; }
+      if (!migliore || seq.length > migliore.seq.length) migliore = { yc: r.yc, seq };
+    });
+    if (!migliore || migliore.seq.length < 5) return { errore: 'intestazione' };
+    let seq = migliore.seq;
+
+    // posizione x di ogni colonna-giorno: retta x = a + b·giorno, scartando i numeri letti male
+    // (un "2" che in realtà era "12" finisce lontano dalla retta e viene tolto)
+    let a = 0, b = 0;
+    for (let giro = 0; giro < 12; giro++) {
+      const n = seq.length, sx = seq.reduce((s, p) => s + p.d, 0), sy = seq.reduce((s, p) => s + p.xc, 0);
+      const sxx = seq.reduce((s, p) => s + p.d * p.d, 0), sxy = seq.reduce((s, p) => s + p.d * p.xc, 0);
+      b = (n * sxy - sx * sy) / (n * sxx - sx * sx); a = (sy - b * sx) / n;
+      if (!(b > 0)) return { errore: 'intestazione' };
+      let peggio = -1, scarto = 0;
+      seq.forEach((p, i) => { const r = Math.abs(p.xc - (a + b * p.d)); if (r > scarto) { scarto = r; peggio = i; } });
+      if (scarto <= b * 0.35 || seq.length <= 5) break;
+      seq = seq.filter((_, i) => i !== peggio);
+    }
+    if (seq.length < 5) return { errore: 'intestazione' };
+    // la tabella può mostrare solo una parte del mese (es. dal 12 al 31): si usano solo i giorni visibili
+    const dal = Math.max(1, seq[0].d), al = Math.min(giorniMese, seq[seq.length - 1].d);
+    if (al < dal) return { errore: 'intestazione' };
+    const colonne = {};
+    for (let d = dal; d <= al; d++) colonne[d] = a + b * d;
+    seq.forEach(p => { if (p.d >= dal && p.d <= al) colonne[p.d] = p.xc; });
+    const passo = b, primaX = colonne[dal] - passo / 2;
+    const mesi = seq.map(p => p.mm).filter(Boolean);
+    const meseTabella = mesi.length >= 3 ? mediana(mesi) : null;
+
+    // 2) riga della persona: parole a sinistra della prima colonna, sotto l'intestazione
+    const aSinistra = W.filter(p => p.x1 <= primaX + passo * 0.3 && p.yc > migliore.yc + H * 0.5 && /[a-zà-ü]/i.test(p.t));
+    const righeNomi = [];
+    aSinistra.slice().sort((p, q) => p.yc - q.yc || p.x0 - q.x0).forEach(p => {
+      const r = righeNomi.find(r => Math.abs(r.yc - p.yc) < H * 0.6);
+      if (r) r.el.push(p); else righeNomi.push({ yc: p.yc, el: [p] });
+    });
+    righeNomi.forEach(r => { r.testo = r.el.sort((p, q) => p.x0 - q.x0).map(p => p.t).join(' '); });
+    const nomiTrovati = righeNomi.map(r => r.testo).filter(t => norm(t).length >= 2);
+
+    const distanza = (s, t) => {
+      const m = s.length, k = t.length, D = Array.from({ length: m + 1 }, (_, i) => [i].concat(new Array(k).fill(0)));
+      for (let j = 1; j <= k; j++) D[0][j] = j;
+      for (let i = 1; i <= m; i++) for (let j = 1; j <= k; j++)
+        D[i][j] = Math.min(D[i - 1][j] + 1, D[i][j - 1] + 1, D[i - 1][j - 1] + (s[i - 1] === t[j - 1] ? 0 : 1));
+      return D[m][k];
+    };
+    const pezzi = String(nome || '').split(/\s+/).map(norm).filter(x => x.length >= 2);
+    if (!pezzi.length) return { errore: 'nome', nomiTrovati, colonne, meseTabella };
+    let rigaNome = null, punti = 0;
+    // contiene pz anche con una lettera sbagliata (per nomi letti "attaccati", es. ROSSIANNAMARIA)
+    const contieneQuasi = (testo, pz) => {
+      if (pz.length < 4) return false;
+      for (let L = pz.length - 1; L <= pz.length + 1; L++)
+        for (let i = 0; i + L <= testo.length; i++) if (distanza(testo.substr(i, L), pz) <= 1) return true;
+      return false;
+    };
+    righeNomi.forEach(r => {
+      const parole = r.el.map(p => norm(p.t)).filter(Boolean), tutto = parole.join('');
+      let s = 0;
+      pezzi.forEach(pz => {
+        if (parole.includes(pz) || tutto === pz || (pz.length >= 3 && tutto.includes(pz))) s += 2;
+        else if (parole.some(w => (pz.length >= 4 && distanza(w, pz) <= 1) || (w.length >= 3 && pz.startsWith(w))) || contieneQuasi(tutto, pz)) s += 1;
+      });
+      if (s > punti) { punti = s; rigaNome = r; }
+    });
+    if (!rigaNome) return { errore: 'nome', nomiTrovati, colonne, meseTabella };
+
+    // 3) prima stima delle celle dalla lettura complessiva (usata come riserva)
+    const fineNome = Math.max(...rigaNome.el.map(p => p.x1));
+    const celle = W.filter(p => Math.abs(p.yc - rigaNome.yc) < H * 0.7 && p.x0 >= fineNome - 2 && p.xc > primaX);
+    const giorni = {};
+    celle.forEach(p => {
+      const codice = codiceTurno(p.t, typeof tipi !== 'undefined' ? tipi : null);
+      if (!codice.length) return;
+      const x = (p.x1 - p.x0) > passo * 0.9 ? p.x0 + passo * 0.45 : p.xc; // "Corso" che sborda: conta la cella in cui inizia
+      let giorno = null, best = Infinity;
+      Object.keys(colonne).forEach(d => { const dd = Math.abs(colonne[d] - x); if (dd < best) { best = dd; giorno = +d; } });
+      if (best > passo * 0.65) return;
+      const g = giorni[giorno] || (giorni[giorno] = []);
+      codice.forEach(c => { if (!g.includes(c)) g.push(c); });
+    });
+    Object.keys(giorni).forEach(d => giorni[d].sort((x, y) => 'MPC'.indexOf(x) - 'MPC'.indexOf(y)));
+    // altezza della riga: distanza tipica tra le righe dei nomi
+    const passiY = righeNomi.map(r => r.yc).sort((p, q) => p - q).map((y, i, a) => i ? y - a[i - 1] : 0).filter(d => d > H * 0.8);
+    const altezza = passiY.length ? mediana(passiY) : H * 1.6;
+    // fascia verticale della riga: le sigle possono stare in alto o in fondo alla cella (in Excel spesso sono in fondo)
+    // righe vere vicine (si ignorano pezzi di testo a pochi pixel, che non sono righe della tabella)
+    const ys = righeNomi.map(r => r.yc).sort((p, q) => p - q);
+    const prima = ys.filter(y => y < rigaNome.yc - altezza * 0.6), dopo = ys.filter(y => y > rigaNome.yc + altezza * 0.6);
+    const sopra = prima.length ? prima[prima.length - 1] : Math.max(migliore.yc, rigaNome.yc - altezza);
+    const sotto = dopo.length ? dopo[0] : rigaNome.yc + altezza;
+    const fascia = { top: Math.max((sopra + rigaNome.yc) / 2, rigaNome.yc - altezza * 0.75), bottom: Math.min((rigaNome.yc + sotto) / 2, rigaNome.yc + altezza * 0.75) };
+    // dove finiscono nomi e ruoli: valore tipico su tutte le righe (una cella letta come "nome" in una riga non conta)
+    // per ogni riga si prende il primo gruppo di parole vicine tra loro (il nome); le sigle nelle celle sono staccate
+    const fineGruppo = r => {
+      const el = r.el.slice().sort((p, q) => p.x0 - q.x0);
+      let fine = el[0].x1;
+      for (let i = 1; i < el.length && el[i].x0 - fine < Math.min(passo * 0.6, H * 1.2); i++) fine = Math.max(fine, el[i].x1);
+      return fine;
+    };
+    const fineEtichette = mediana(righeNomi.map(fineGruppo));
+    const posNumeri = {}; seq.forEach(p => { posNumeri[p.d] = p.xc; });
+    return { giorni, colonne, passo, dal, al, retta: { a, b }, numeri: posNumeri, intestazione: { yc: migliore.yc, h: H }, fineNome: fineEtichette,
+      riga: { yc: rigaNome.yc, h: altezza, top: fascia.top, bottom: fascia.bottom }, nomiTrovati, meseTabella,
+      rigaTrovata: (() => { const f = fineGruppo(rigaNome); return rigaNome.el.filter(p => p.x1 <= f + 1).map(p => p.t).join(' '); })() };
+  }
+
+  /** Lettere che il lettore può trovare nelle celle: sigle e nomi dei tuoi turni. */
+  function letterePermesse(tipi) {
+    const set = new Set();
+    tipi.forEach(t => {
+      (t.sigla + t.nome).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z]/g, '')
+        .split('').forEach(c => { set.add(c.toUpperCase()); set.add(c.toLowerCase()); });
+    });
+    return [...set].join('');
+  }
+
+  /**
+   * Testo di una cella → elenco di sigle. Riconosce:
+   * la sigla ("M"), il nome anche tagliato ("Corso", "Cor"), più sigle attaccate ("MP", "M/P").
+   * tipi: [{ sigla, nome }]. Senza tipi usa M, P, C (Mattino, Pomeriggio, Corso).
+   */
+  function codiceTurno(testo, tipi) {
+    tipi = tipi && tipi.length ? tipi : [{ sigla: 'M', nome: 'Mattino' }, { sigla: 'P', nome: 'Pomeriggio' }, { sigla: 'C', nome: 'Corso' }];
+    const N = x => String(x).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const t = N(testo);
+    if (!t) return [];
+    const sig = tipi.map(x => ({ s: N(x.sigla), n: N(x.nome) })).filter(x => x.s);
+    // 1) sigla esatta
+    const es = sig.find(x => x.s === t);
+    if (es) return [es.s];
+    // 2) nome scritto per intero o tagliato (almeno 3 lettere): "CORSO", "COR"
+    if (t.length >= 3) {
+      const nm = sig.find(x => x.n.length >= 3 && (x.n.startsWith(t) || t.startsWith(x.n.slice(0, Math.min(4, x.n.length)))));
+      if (nm) return [nm.s];
+    }
+    // 3) più sigle attaccate: "MP" = M + P (tollera un carattere spurio dovuto al bordo della cella)
+    const dividi = str => {
+      const best = new Array(str.length + 1).fill(null); best[0] = [];
+      for (let i = 0; i < str.length; i++) {
+        if (!best[i]) continue;
+        sig.forEach(x => { if (str.startsWith(x.s, i) && !best[i + x.s.length]) best[i + x.s.length] = best[i].concat(x.s); });
+      }
+      return best[str.length];
+    };
+    let parti = dividi(t);
+    if (!parti && t.length <= 4) {
+      for (let i = 0; i < t.length && !parti; i++) parti = dividi(t.slice(0, i) + t.slice(i + 1));
+    }
+    if (!parti || parti.length > 3) return [];
+    const ordine = sig.map(x => x.s);
+    return [...new Set(parti)].sort((a, b) => ordine.indexOf(a) - ordine.indexOf(b));
+  }
+  /*PARSER-END*/
+
+  /* ================= eventi ================= */
+  $('prev').onclick = () => cambiaMese(-1);
+  $('next').onclick = () => cambiaMese(1);
+  $('fChiudi').onclick = chiudiMenu;
+  $('fConferma').onclick = conferma;
+  $('oIndietro').onclick = () => { $('passo2').hidden = true; $('passo1').hidden = false; };
+  $('oSalva').onclick = salvaOre;
+  $('meno').onclick = () => cambiaOre(-0.5);
+  $('piu').onclick = () => cambiaOre(0.5);
+  $('oreIn').oninput = renderRapide;
+  $('oreIn').onkeydown = e => { if (e.key === 'Enter') salvaOre(); };
+  $('velo').onclick = e => { if (e.target === $('velo')) chiudiMenu(); };
+  $('nuovoTipo').onclick = () => { tornaAlMenu = null; apriEditor(null); };
+  $('fNuovo').onclick = () => { tornaAlMenu = { giorni: bersagli.slice(), scelti: scelti.slice() }; chiudiMenu(); apriEditor(null); };
+  $('edAnnulla').onclick = () => {
+    $('ed').classList.remove('on');
+    if (tornaAlMenu) { const g = tornaAlMenu; tornaAlMenu = null; apriMenu(g.giorni); scelti = g.scelti; renderScelte(); }
+  };
+  $('edSalva').onclick = salvaEditor;
+  $('edElimina').onclick = eliminaEditor;
+  ['edNome', 'edSigla', 'edInizio', 'edFine', 'edPausa', 'edOre'].forEach(id => { $(id).oninput = aggiornaAnteprima; });
+  $('benvVia').onclick = () => $('benv').classList.remove('on');
+  $('benvTurni').onclick = () => apriSezione('turniBox');
+  $('benvPaga').onclick = apriRegole;
+  $('multi').onchange = () => {
+    if (!$('multi').checked) selezionati.clear();
+    aggiornaBarra(); render();
+  };
+  $('annullaSel').onclick = () => { selezionati.clear(); aggiornaBarra(); render(); };
+  $('aggiungi').onclick = () => { if (selezionati.size) apriMenu([...selezionati]); };
+  $('apriImp').onclick = apriImp;
+  $('salvaRegole').onclick = salvaRegole;
+  $('salvaFerie').onclick = salvaRegole;
+  $('fUnita').onchange = etichetteFerie;
+  $('apriFerie').onclick = apriPeriodoFerie;
+  $('apriBusta').onclick = apriBusta;
+  $('bpChiudi').onclick = chiudiBusta; $('bpAnnulla').onclick = chiudiBusta;
+  $('bpFile').onchange = e => { const f = e.target.files && e.target.files[0]; if (f) caricaBusta(f); };
+  $('bpSalva').onclick = salvaBusta;
+  $('bpLordo').oninput = aggiornaPercBusta; $('bpNetto').oninput = aggiornaPercBusta;
+  $('bp').onclick = e => { if (e.target === $('bp')) chiudiBusta(); };
+  $('ferChiudi').onclick = () => $('fer').classList.remove('on');
+  $('ferOk').onclick = confermaFerie;
+  $('ferDal').oninput = () => { if (!$('ferAl').value || $('ferAl').value < $('ferDal').value) $('ferAl').value = $('ferDal').value; anteprimaFerie(); };
+  $('ferAl').oninput = anteprimaFerie;
+  $('fer').onclick = e => { if (e.target === $('fer')) $('fer').classList.remove('on'); };
+  $('calControlla').onclick = controllaCal;
+  $('calRipara').onclick = riparaCal;
+  $('calProva').onclick = provaCal;
+  $('impBox').addEventListener('toggle', () => { if ($('impBox').open && !DEMO) controllaCal(); });
+  $('detChiudi').onclick = () => $('det').classList.remove('on');
+  $('det').onclick = e => { if (e.target === $('det')) $('det').classList.remove('on'); };
+  $('homeOk').onclick = () => { $('home').classList.remove('on'); chiama('segnaVisto', 'vistoHome').catch(() => {}); };
+  $('homeNo').onclick = () => { $('home').classList.remove('on'); try { sessionStorage.setItem('homeNo', '1'); } catch (e) { } };
+  $('impChiudi').onclick = chiudiImp;
+  $('impChiudi2').onclick = chiudiImp;
+  $('impChiudi3').onclick = chiudiImp;
+  $('impScegli').onclick = e => { if (!$('impNome').value.trim()) { e.preventDefault(); $('impNome').focus(); $('impNome').placeholder = 'Scrivi prima il tuo nome'; } };
+  $('impFile').onchange = e => { const f = e.target.files && e.target.files[0]; if (f) leggiImmagine(f); };
+  $('impVedi').onclick = vediProposta;
+  $('propConferma').onclick = confermaProposta;
+  $('propAnnulla').onclick = annullaProposta;
+  window.addEventListener('beforeunload', e => {
+    if (!DEMO && (Object.keys(modifiche).length || inViaggio)) { salvaSubito(); e.preventDefault(); e.returnValue = ''; }
+  });
+  /* ================= schermata iniziale: logo in assolvenza, poi dissolvenza ================= */
+  const SPLASH_INIZIO = Date.now();
+  let splashChiuso = false;
+  function chiudiSplash() {
+    if (splashChiuso) return;
+    const attesa = Math.max(0, 1700 - (Date.now() - SPLASH_INIZIO)); // il logo resta visibile almeno ~1,7 s
+    splashChiuso = true;
+    setTimeout(volaAlPosto, attesa);
+  }
+
+  /** Uscita (animazione 7): il nome sfuma, lo sfondo svanisce e il logo vola accanto al mese. */
+  async function volaAlPosto() {
+    const s = $('splash'), img = s.querySelector('img'), nome = s.querySelector('.nome'), sfondo = s.querySelector('.sfondo');
+    const dest = $('testaLogo'), fine = () => { dest.style.opacity = 1; s.remove(); };
+    s.classList.add('via');
+    window.scrollTo(0, 0);
+    const piano = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (piano || !img.animate) { s.style.transition = 'opacity .25s'; s.style.opacity = 0; setTimeout(fine, 260); return; }
+    const a = img.getBoundingClientRect(), b = dest.getBoundingClientRect();
+    const dx = (b.left + b.width / 2) - (a.left + a.width / 2), dy = (b.top + b.height / 2) - (a.top + a.height / 2), sc = b.width / a.width;
+    const opz = (d, x) => Object.assign({ duration: d, fill: 'forwards', easing: 'cubic-bezier(.2,.8,.2,1)' }, x || {});
+    nome.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(6px)' }], opz(300));
+    sfondo.animate([{ opacity: 1 }, { opacity: 0 }], opz(650, { delay: 120 }));
+    try {
+      await img.animate([{ transform: 'translate(0,0) scale(1)', boxShadow: '0 16px 50px rgba(0,0,0,.6)' },
+                         { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + sc + ')', boxShadow: '0 0 0 rgba(0,0,0,0)' }],
+                        opz(800, { easing: 'cubic-bezier(.65,0,.35,1)' })).finished;
+    } catch (e) { }
+    fine();
+  }
+  setTimeout(chiudiSplash, 3500); // al massimo 3,5 s, anche se Google è lento
+  $('firmaLogo').src = document.querySelector('#splash img').src;
+  $('testaLogo').src = $('firmaLogo').src;
+  $('testaLogo').style.opacity = 0; // compare quando il logo della schermata iniziale ci atterra
+
+  avvio().then(chiudiSplash, chiudiSplash);
+</script>
+</body>
+</html>
