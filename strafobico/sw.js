@@ -5,7 +5,7 @@
  * - le chiamate alle API di Google non passano mai dalla memoria
  * Quando pubblichi una nuova versione, cambia VERSIONE: gli utenti la ricevono alla riapertura.
  */
-const VERSIONE = 'strafobico-v2';
+const VERSIONE = 'strafobico-v4';
 const APP = ['./', 'index.html', 'privacy.html', 'manifest.webmanifest', 'js/config.js', 'js/core.js', 'js/google.js',
   'icons/logo.webp', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png', 'icons/favicon-32.png'];
 const ESTERNI = /^https:\/\/(cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|unpkg\.com|api\.fontshare\.com|cdn\.fontshare\.com|fonts\.gstatic\.com)\//;
@@ -31,14 +31,18 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (new URL(url).origin !== location.origin) return;
-  // file dell'app: subito dalla memoria, intanto controllo se c'è una versione nuova
+  // file dell'app: prima dalla rete (così le modifiche pubblicate arrivano subito),
+  // dalla memoria solo se non c'è connessione o la rete è troppo lenta
   e.respondWith(caches.open(VERSIONE).then(async c => {
+    const rete = fetch(req, { cache: 'no-cache' }).then(r => { if (r.ok) c.put(req, r.clone()); return r; }).catch(() => null);
+    const lenta = new Promise(ok => setTimeout(() => ok('lenta'), 4000));
+    const primo = await Promise.race([rete, lenta]);
+    if (primo && primo !== 'lenta') return primo;
     const m = await c.match(req, { ignoreSearch: req.mode === 'navigate' });
-    const rete = fetch(req).then(r => { if (r.ok) c.put(req, r.clone()); return r; }).catch(() => null);
-    if (m) { e.waitUntil(rete); return m; }
+    if (m) return m;
     const r = await rete;
     if (r) return r;
-    if (req.mode === 'navigate') return c.match('index.html');
+    if (req.mode === 'navigate') return (await c.match('index.html')) || new Response('Offline', { status: 503 });
     return new Response('', { status: 504 });
   }));
 });

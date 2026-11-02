@@ -55,21 +55,27 @@
         const D = S.dati(); D.meta.tok = token; D.meta.tokScad = scadenza; S.salva();
         a.ok(token);
       },
-      error_callback: e => { const a = attesaToken; attesaToken = null; if (a) a.ko(new Error(e && e.type === 'popup_closed' ? 'accesso annullato' : 'accesso non riuscito')); },
+      error_callback: e => {
+        const a = attesaToken; attesaToken = null; if (!a) return;
+        const t = e && e.type;
+        a.ko(new Error(t === 'popup_closed' ? 'accesso annullato' : t === 'popup_failed_to_open'
+          ? 'il browser ha bloccato la finestra di accesso di Google: consenti i popup per questo sito e riprova' : 'accesso non riuscito'));
+      },
     });
     return client;
   }
   /** Token valido; se è scaduto serve un tocco dell'utente (i browser bloccano le finestre di accesso automatiche). */
-  async function prendiToken(interattivo) {
+  function prendiToken(interattivo) {
     const D = S.dati();
     if (!token && D.meta.tok && D.meta.tokScad > Date.now() + 60000) { token = D.meta.tok; scadenza = D.meta.tokScad; }
-    if (token && Date.now() < scadenza - 60000) return token;
-    if (!interattivo) throw new ServeAccesso();
-    await preparaClient();
-    return new Promise((ok, ko) => {
+    if (token && Date.now() < scadenza - 60000) return Promise.resolve(token);
+    if (!interattivo) return Promise.reject(new ServeAccesso());
+    // la finestra di Google va aperta subito, nello stesso tocco: i browser bloccano le finestre aperte dopo un'attesa
+    const chiedi = () => new Promise((ok, ko) => {
       attesaToken = { ok, ko };
       client.requestAccessToken({ prompt: D.meta.email ? '' : 'consent', login_hint: D.meta.email || undefined });
     });
+    return client ? chiedi() : preparaClient().then(chiedi);
   }
   async function accedi() {
     await prendiToken(true);
@@ -169,14 +175,14 @@
     const fogli = {}; (info.sheets || []).forEach(s => { fogli[s.properties.title] = s.properties; });
     const turniNomi = Object.keys(fogli).filter(n => /^Turni \d{4}$/.test(n));
     const vecchio = fogli['Turni'] ? ['Turni'] : []; // foglio della prima versione (un solo foglio per tutti gli anni)
-    const intervalli = ['Tipi turno!A2:J', 'Impostazioni!A2:B', 'Buste paga!A2:H'].filter(r => fogli[r.split('!')[0]])
+    const intervalli = ['Tipi turno!A2:J', 'Impostazioni!A2:B', 'Buste paga!A1:K'].filter(r => fogli[r.split('!')[0]])
       .concat(turniNomi.concat(vecchio).map(n => "'" + n + "'!A2:M"));
     const remoto = { fogli, tipi: null, imp: null, buste: null, turni: [] };
     if (!intervalli.length) return remoto;
     const url = SHEETS + '/' + id + '/values:batchGet?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER&' + intervalli.map(r => 'ranges=' + q(r)).join('&');
     const vr = (await api('GET', url)).valueRanges || [];
     let formule = [];
-    if (fogli['Buste paga']) formule = ((await api('GET', SHEETS + '/' + id + '/values/' + q('Buste paga!G2:G') + '?valueRenderOption=FORMULA')).values || []);
+    if (fogli['Buste paga']) formule = ((await api('GET', SHEETS + '/' + id + '/values/' + q('Buste paga!A1:K') + '?valueRenderOption=FORMULA')).values || []);
     vr.forEach(v => {
       const nome = v.range.split('!')[0].replace(/^'|'$/g, ''), righe = v.values || [];
       if (nome === 'Tipi turno') remoto.tipi = righe.filter(r => r[0]).map(r => Array.from({ length: 10 }, (_, i) => r[i] == null ? '' : r[i]));
@@ -185,12 +191,14 @@
         righe.forEach(r => { const voce = S.IMPOSTAZIONI.find(x => x[1] === String(r[0] || '').trim()); if (voce) remoto.imp[voce[0]] = r[1] == null ? '' : String(r[1]); });
       } else if (nome === 'Buste paga') {
         remoto.buste = {};
-        righe.forEach((r, i) => {
+        const testa = (righe[0] || []).map(x => String(x || '').trim()), col = n => testa.indexOf(n);
+        const cPdf = col('PDF');
+        righe.slice(1).forEach((r, i) => {
           const m = String(r[0] || '').match(/^(\d{4})-(\d{2})$/); if (!m) return;
-          const f = String((formule[i] || [])[0] || ''), link = (f.match(/HYPERLINK\("([^"]+)"/i) || [])[1] || '';
-          remoto.buste[m[0]] = { mese: m[0], lordo: r[1] === '' || r[1] == null ? '' : S.num(r[1]), trattenute: r[2] === '' || r[2] == null ? '' : S.num(r[2]),
-            netto: r[3] === '' || r[3] == null ? '' : S.num(r[3]), ferie: r[4] === '' || r[4] == null ? '' : S.num(r[4]), unita: r[5] || '', link,
-            fileId: (link.match(/\/d\/([^/]+)/) || [])[1] || '' };
+          const val = n => { const c = col(n); return c < 0 || r[c] === '' || r[c] == null ? '' : r[c]; }, numero = n => { const v = val(n); return v === '' ? '' : S.num(v); };
+          const f = cPdf < 0 ? '' : String((formule[i + 1] || [])[cPdf] || ''), link = (f.match(/HYPERLINK\("([^"]+)"/i) || [])[1] || '';
+          remoto.buste[m[0]] = { mese: m[0], lordo: numero('Lordo €'), trattenute: numero('Trattenute €'), netto: numero('Netto €'), ferie: numero('Ferie residue'), unita: val('Unità ferie'),
+            rol: numero('ROL residui'), exfest: numero('Ex festività residue'), unitaPermessi: val('Unità permessi'), link, fileId: (link.match(/\/d\/([^/]+)/) || [])[1] || '' };
         });
       } else {
         righe.forEach(r => {
@@ -378,17 +386,19 @@
     b.larg = { 1: 300, 2: 150, 3: 480 };
     return b;
   }
+  const COLONNE_BUSTE = ['Mese', 'Lordo €', 'Trattenute €', 'Netto €', 'Ferie residue', 'Unità ferie', 'ROL residui', 'Ex festività residue', 'Unità permessi', 'PDF', 'Caricata il'];
   function bozzaBuste() {
     const b = new Bozza(), D = S.dati(); b.fissaR = 1;
-    b.riga(1, 1, ['Mese', 'Lordo €', 'Trattenute €', 'Netto €', 'Ferie residue', 'Unità ferie', 'PDF', 'Caricata il'], TESTA);
+    b.riga(1, 1, COLONNE_BUSTE, TESTA);
     Object.keys(D.buste).sort().reverse().forEach((k, i) => {
       const x = D.buste[k], r = i + 2, eur = { type: 'NUMBER', pattern: '#,##0.00 "€"' };
       b.set(r, 1, { v: k, nf: { type: 'TEXT' } }); b.set(r, 2, { v: x.lordo, nf: eur }); b.set(r, 3, { v: x.trattenute, nf: eur }); b.set(r, 4, { v: x.netto, nf: eur });
       b.set(r, 5, { v: x.ferie }); b.set(r, 6, { v: x.unita });
-      if (x.link) b.set(r, 7, { formula: '=HYPERLINK("' + x.link + '";"📄 Busta paga ' + MESI[+k.slice(5) - 1] + '")' });
-      if (x.caricata) { const d = new Date(x.caricata); b.set(r, 8, { data: d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) }); b.set(r, 8, { nf: { type: 'DATE', pattern: 'dd/mm/yyyy' } }); }
+      b.set(r, 7, { v: x.rol == null ? '' : x.rol }); b.set(r, 8, { v: x.exfest == null ? '' : x.exfest }); b.set(r, 9, { v: x.unitaPermessi || '' });
+      if (x.link) b.set(r, 10, { formula: '=HYPERLINK("' + x.link + '";"📄 Busta paga ' + MESI[+k.slice(5) - 1] + '")' });
+      if (x.caricata) { const d = new Date(x.caricata); b.set(r, 11, { data: d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) }); b.set(r, 11, { nf: { type: 'DATE', pattern: 'dd/mm/yyyy' } }); }
     });
-    for (let c = 1; c <= 8; c++) b.larg[c] = c === 7 ? 170 : 110;
+    for (let c = 1; c <= COLONNE_BUSTE.length; c++) b.larg[c] = c === 10 ? 170 : 110;
     return b;
   }
 
@@ -606,6 +616,8 @@
   }
 
   /* ---------------- avvio: sincronizza quando torna la rete ---------------- */
+  // preparo subito il collegamento a Google: al tocco di «Accedi» la finestra si apre senza attese
+  setTimeout(() => { if (CFG.clientId && !/INSERISCI/.test(CFG.clientId) && glob.document && navigator.onLine) preparaClient().catch(() => { client = null; }); }, 1500);
   glob.addEventListener('online', () => { if (S.dati() && S.dati().meta.email) sincronizza(false); });
   glob.addEventListener('offline', () => avvisa('offline', 'Senza connessione: puoi continuare a usare l\'app'));
 

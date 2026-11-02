@@ -25,6 +25,10 @@
     ['ferieSabato', 'Il sabato conta come ferie', 'Sì', 'No = settimana corta (lun-ven)'],
     ['ferieSaldo', 'Saldo ferie dall\'ultima busta paga', '', 'Compilato quando carichi una busta paga'],
     ['ferieSaldoMese', 'Mese di quel saldo (aaaa-mm)', '', 'Compilato quando carichi una busta paga'],
+    ['rolSaldo', 'Permessi ROL residui', '', 'Dall\'ultima busta paga (o scritti a mano)'],
+    ['exfestSaldo', 'Ex festività residue', '', 'Festività soppresse / non godute, dall\'ultima busta paga'],
+    ['permUnita', 'Permessi contati in', 'ore', 'ore / giorni'],
+    ['permSaldoMese', 'Mese dei saldi permessi (aaaa-mm)', '', 'Compilato quando carichi una busta paga'],
   ];
   const CHIAVI_DAL_PANNELLO = ['nomeTab', 'oreMese', 'paga', 'pStra', 'pFest', 'domenica', 'locali', 'tratt', 'ferieAnno', 'ferieResiduo', 'ferieUnita', 'ferieSabato'];
   // Nome | Sigla | Inizio | Fine | Pausa | Categoria | Ore | Colore (1-11) | Icona | Attivo
@@ -146,6 +150,8 @@
       ferieSabato: !/^n/i.test(raw.ferieSabato || 'Sì'),
       ferieSaldo: raw.ferieSaldo === '' || raw.ferieSaldo == null ? null : num(raw.ferieSaldo),
       ferieSaldoMese: /^\d{4}-\d{2}$/.test(raw.ferieSaldoMese || '') ? raw.ferieSaldoMese : '',
+      rolSaldo: raw.rolSaldo === '' || raw.rolSaldo == null ? null : num(raw.rolSaldo), exfestSaldo: raw.exfestSaldo === '' || raw.exfestSaldo == null ? null : num(raw.exfestSaldo),
+      permUnita: /^g/i.test(raw.permUnita || '') ? 'giorni' : 'ore', permSaldoMese: /^\d{4}-\d{2}$/.test(raw.permSaldoMese || '') ? raw.permSaldoMese : '',
     };
   }
   let TIPI = null, CALC = null;
@@ -252,7 +258,8 @@
       e: { ord: r2(t.calc.e.ord), stra: r2(t.calc.e.stra), fest: r2(t.calc.e.fest), ass: r2(t.calc.e.ass) } }));
     const s = x.s;
     const regole = { paga: s.paga, pStra: s.pStra, pFest: s.pFest, oreMese: s.oreMese, tratt: s.tratt, domenica: s.domenica, locali: s.localiRaw,
-      ferieAnno: s.ferieAnno, ferieResiduo: s.ferieResiduo, ferieUnita: s.ferieUnita, ferieSabato: s.ferieSabato, ferieSaldo: s.ferieSaldo, ferieSaldoMese: s.ferieSaldoMese };
+      ferieAnno: s.ferieAnno, ferieResiduo: s.ferieResiduo, ferieUnita: s.ferieUnita, ferieSabato: s.ferieSabato, ferieSaldo: s.ferieSaldo, ferieSaldoMese: s.ferieSaldoMese,
+      rolSaldo: s.rolSaldo, exfestSaldo: s.exfestSaldo, permUnita: s.permUnita, permSaldoMese: s.permSaldoMese };
     const tf = tipoFerie(x.tipi);
     const ferie = tf ? { nome: tf.nome, oreGiorno: tf.oreRetr, date: x.turni.filter(t => t.tipoObj === tf && t.date.indexOf(anno + '-') === 0).map(t => t.date) } : null;
     const b = D.buste[pref];
@@ -363,6 +370,12 @@
       valori.ferieAnno = numero(r.ferieAnno, 3000); valori.ferieResiduo = numero(r.ferieResiduo, 3000);
       valori.ferieUnita = r.ferieUnita === 'ore' ? 'ore' : 'giorni'; valori.ferieSabato = r.ferieSabato ? 'Sì' : 'No';
     }
+    if (r.rolSaldo != null) {
+      const s0 = leggiImpostazioni(), vr = r.rolSaldo === '' ? '' : numero(r.rolSaldo, 3000), ve = r.exfestSaldo === '' ? '' : numero(r.exfestSaldo, 3000);
+      // scritti a mano: se cambiano rispetto alla busta, non sono più "dalla busta paga"
+      if (String(vr == null ? '' : vr) !== String(s0.rolSaldo == null ? '' : s0.rolSaldo) || String(ve == null ? '' : ve) !== String(s0.exfestSaldo == null ? '' : s0.exfestSaldo)) valori.permSaldoMese = '';
+      valori.rolSaldo = vr; valori.exfestSaldo = ve; valori.permUnita = r.permUnita === 'giorni' ? 'giorni' : 'ore';
+    }
     Object.keys(valori).forEach(k => { if (valori[k] !== null && valori[k] !== undefined) scriviImp(k, valori[k]); });
     const tf = tipoFerie(leggiTipi()), oreF = r.ferieOre === '' || r.ferieOre == null ? null : num(r.ferieOre);
     if (tf && oreF != null && oreF >= 0 && oreF <= 24 && oreF !== tf.oreRetr) {
@@ -388,11 +401,18 @@
     if (!m || +m[2] < 1 || +m[2] > 12) throw new Error('Mese della busta paga non valido');
     const k = m[0], n2 = v => v === '' || v == null ? '' : r2(num(v)), vecchia = D.buste[k] || {};
     D.buste[k] = { mese: k, lordo: n2(d.lordo), trattenute: n2(d.trattenute), netto: n2(d.netto), ferie: n2(d.ferie),
-      unita: d.ferie === '' || d.ferie == null ? '' : (d.unita === 'ore' ? 'ore' : 'giorni'), link: b64 ? '' : (vecchia.link || ''), fileId: b64 ? '' : (vecchia.fileId || ''),
+      unita: d.ferie === '' || d.ferie == null ? '' : (d.unita === 'ore' ? 'ore' : 'giorni'),
+      rol: n2(d.rol), exfest: n2(d.exfest), unitaPermessi: (d.rol === '' || d.rol == null) && (d.exfest === '' || d.exfest == null) ? '' : (d.unitaPermessi === 'giorni' ? 'giorni' : 'ore'), link: b64 ? '' : (vecchia.link || ''), fileId: b64 ? '' : (vecchia.fileId || ''),
       vecchioFile: b64 && vecchia.fileId ? vecchia.fileId : (vecchia.vecchioFile || ''), caricata: Date.now() };
     if (b64) await idbSet('file', k, { b64, nome: d.nomeFile || '', tipo: d.tipo || '' });
     D.pend.buste[k] = Date.now();
     const s = leggiImpostazioni();
+    const haPerm = v => v !== '' && v != null;
+    if (d.aggFerie && (haPerm(d.rol) || haPerm(d.exfest)) && (!s.permSaldoMese || k >= s.permSaldoMese)) {
+      if (haPerm(d.rol)) scriviImp('rolSaldo', String(r2(num(d.rol))));
+      if (haPerm(d.exfest)) scriviImp('exfestSaldo', String(r2(num(d.exfest))));
+      scriviImp('permUnita', d.unitaPermessi === 'giorni' ? 'giorni' : 'ore'); scriviImp('permSaldoMese', k);
+    }
     if (d.aggFerie && d.ferie !== '' && d.ferie != null) {
       const unita = d.unita === 'ore' ? 'ore' : 'giorni';
       if (unita !== s.ferieUnita) {

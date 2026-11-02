@@ -112,11 +112,11 @@
   .sub3 span.t { font-size:11.5px; color:var(--muted); }
   .sub3 b { font-size:15px; }
   .sub3 b.no { font-size:12px; color:var(--acc); font-weight:600; }
-  details.orari .campi { display:grid; grid-template-columns:1fr 92px; gap:8px 10px; align-items:center; margin-top:10px; font-size:13px; }
-  details.orari .campi input:not([type=checkbox]) { width:100%; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); font-size:15px; text-align:right; }
-  details.orari .campi small { display:block; color:var(--muted); font-size:11px; }
-  details.orari .campi .chk { justify-self:end; width:22px; height:22px; }
-  details.orari .campi input.lungo { text-align:left; }
+  #impBox .campi { display:grid; grid-template-columns:1fr 92px; gap:8px 10px; align-items:center; margin-top:10px; font-size:13px; }
+  #impBox .campi input:not([type=checkbox]) { width:100%; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); font-size:15px; text-align:right; }
+  #impBox .campi small { display:block; color:var(--muted); font-size:11px; }
+  #impBox .campi .chk { justify-self:end; width:22px; height:22px; }
+  #impBox .campi input.lungo { text-align:left; }
   .home { background:var(--accbg); border:1px solid var(--acc); border-radius:12px; padding:10px 12px; margin-bottom:10px; font-size:13px; line-height:1.45; display:none; }
   .home.on { display:block; }
   .home .riga { margin-top:8px; }
@@ -246,11 +246,29 @@
   .riass { background:var(--card); border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.6; }
   .msgerr { background:var(--errbg); color:var(--errfg); border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.45; }
   .file { position:absolute; width:1px; height:1px; opacity:0; }
+  /* impostazioni a pagina intera */
+  .impApri { margin-top:14px; }
+  .pagina { position:fixed; inset:0; z-index:8; background:var(--bg); overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .ptesta { position:sticky; top:0; z-index:2; display:flex; align-items:center; gap:10px; padding:calc(10px + env(safe-area-inset-top)) 12px 10px; background:var(--bg); border-bottom:1px solid var(--line); }
+  .ptesta h2 { font-size:18px; margin:0; }
+  .pcorpo { max-width:480px; margin:0 auto; padding:12px 12px 40px; }
+  .pmenu { display:flex; flex-direction:column; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+  .pmenu button { display:flex; align-items:center; gap:12px; padding:13px 12px; background:var(--bg); border:0; border-top:1px solid var(--line); color:var(--fg); font:inherit; text-align:left; cursor:pointer; }
+  .pmenu button:first-child { border-top:0; }
+  .pmenu .pi { width:36px; height:36px; border-radius:10px; background:var(--card); display:flex; align-items:center; justify-content:center; font-size:19px; flex:none; }
+  .pmenu .pt { display:flex; flex-direction:column; min-width:0; }
+  .pmenu .pt b { font-size:15px; font-weight:600; }
+  .pmenu .pt small { color:var(--muted); font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pmenu .fr { margin-left:auto; color:var(--muted); font-size:20px; }
+  .pagina .sez { display:none; border-top:0; margin-top:0; padding-top:4px; }
+  .pagina .sez.attiva { display:block; }
+  .pagina .sez > h3 { display:none; }
+  .pagina .pmenu[hidden] + .sez { margin-top:0; }
   /* sincronizzazione con Google */
   .sync { display:flex; align-items:center; justify-content:center; gap:8px; font-size:12px; color:var(--muted); margin:-2px 0 8px; min-height:22px; }
   .sync button { border:1px solid var(--line); background:var(--card); color:var(--acc); border-radius:999px; padding:3px 10px; font:inherit; font-size:12px; font-weight:600; cursor:pointer; }
   .sync.err { color:var(--fest); }
-  .gbox { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; margin-top:16px; font-size:13px; line-height:1.5; }
+  #gbox { font-size:13.5px; line-height:1.55; }
   .gbox h3 { font-size:15px; margin:0 0 4px; }
   .gbox .riga { margin-top:10px; }
   .gbtn { display:flex; align-items:center; justify-content:center; gap:8px; }
@@ -318,8 +336,12 @@
   <div class="grid" id="grid"></div>
   <div class="riep" id="riep"></div>
 
-  <details class="orari" id="impBox">
-    <summary>⚙️ Impostazioni</summary>
+  <button class="card impApri" id="apriImpost"><span class="ico bg" style="font-size:20px;--bgi:#f1f3f4">⚙️</span><span class="lb"><span>Impostazioni</span><b style="font-size:16px">Paga, ferie, turni, Google</b></span><span class="fr">›</span></button>
+
+  <div class="pagina" id="impBox" hidden role="dialog" aria-modal="true" aria-labelledby="impTitolo">
+    <div class="ptesta"><button class="nav" id="impIndietro" aria-label="Indietro">‹</button><h2 id="impTitolo">Impostazioni</h2></div>
+    <div class="pcorpo">
+    <div class="pmenu" id="impMenu"></div>
 
     <section class="sez" id="regoleBox">
     <h3>💶 Paga e straordinario</h3>
@@ -344,6 +366,9 @@
       <label for="fResiduo" id="fResLbl">Residuo dell'anno prima</label><input id="fResiduo" type="number" inputmode="decimal" min="0" step="0.5">
       <label for="fOre">Ore pagate per giorno di ferie<small>vengono anche scalate, se conti in ore</small></label><input id="fOre" type="number" inputmode="decimal" min="0" max="24" step="0.5">
       <label for="fSab">Il sabato conta come ferie<small>togli la spunta se fai la settimana corta (lun–ven)</small></label><input id="fSab" type="checkbox" class="chk">
+      <label for="fRol">Permessi ROL residui<small>si aggiornano da soli con la busta paga</small></label><input id="fRol" type="number" inputmode="decimal" min="0" step="0.5">
+      <label for="fExf">Ex festività residue<small>festività soppresse / non godute</small></label><input id="fExf" type="number" inputmode="decimal" min="0" step="0.5">
+      <label for="fUnitaP">Permessi contati in</label><select id="fUnitaP" class="campo"><option value="ore">ore</option><option value="giorni">giorni</option></select>
     </div>
     <div class="riga"><button class="btn pri" id="salvaFerie">Salva</button></div>
     <p class="hint">Domeniche e festività non contano mai come giorni di ferie.</p>
@@ -369,9 +394,8 @@
     <div class="riga"><button class="btn pri" id="nuovoTipo">+ Nuovo turno</button></div>
     <p class="hint">Tocca un turno per cambiare nome, sigla, icona, colore e orari. Le modifiche valgono anche per i turni già inseriti da oggi in avanti.</p>
     </section>
-  </details>
 
-  <div class="gbox" id="gbox">
+  <section class="sez" id="gbox">
     <h3>☁️ Account Google</h3>
     <div id="gTesto">I dati sono salvati su questo dispositivo.</div>
     <div class="riga" id="gAccediRiga"><button class="btn pri gbtn" id="gAccedi"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Accedi con Google</button></div>
@@ -381,7 +405,17 @@
       <a id="linkBuste" target="_blank" rel="noopener" hidden>📂 Archivio buste paga</a>
       <a id="gFoglio" href="#" hidden>🔗 Collega un foglio già esistente</a>
     </div>
+  </section>
+
+    <section class="sez" id="infoBox">
+    <h3>ℹ️ Informazioni</h3>
+    <div class="calstato"><b>Strafobico</b> — turni, ore, straordinari, ferie e stipendio.<br>App ideata da Stefano Tanca.<br>
+      I dati sono salvati su questo dispositivo e, se colleghi Google, nel tuo Drive e nel tuo Calendario.</div>
+    <a class="calapri" href="privacy.html">🔒 Informativa sulla privacy</a>
+    </section>
+    </div>
   </div>
+
   <div class="firma"><img alt="" id="firmaLogo"><b>Strafobico</b><span>App ideata da Stefano Tanca</span><a href="privacy.html" style="color:var(--muted);font-size:11.5px;margin-top:6px">Privacy</a></div>
 </div>
 
@@ -515,8 +549,11 @@
         <label for="bpNetto">Netto in busta €</label><input id="bpNetto" type="number" inputmode="decimal" step="0.01">
         <label for="bpFerie">Ferie residue (saldo)<small>quelle che restano a fine mese</small></label><input id="bpFerie" type="number" inputmode="decimal" step="0.01">
         <label for="bpUnita">Ferie indicate in</label><select id="bpUnita"><option value="ore">ore</option><option value="giorni">giorni</option></select>
+        <label for="bpRol">Permessi ROL residui<small>riduzione orario di lavoro</small></label><input id="bpRol" type="number" inputmode="decimal" step="0.01">
+        <label for="bpExf">Ex festività residue<small>festività soppresse / non godute</small></label><input id="bpExf" type="number" inputmode="decimal" step="0.01">
+        <label for="bpUnitaP">Permessi indicati in</label><select id="bpUnitaP"><option value="ore">ore</option><option value="giorni">giorni</option></select>
       </div>
-      <label class="bpchk"><input type="checkbox" id="bpAggFerie" checked><span>Usa il saldo ferie della busta per il conteggio delle ferie</span></label>
+      <label class="bpchk"><input type="checkbox" id="bpAggFerie" checked><span>Aggiorna nell'app il conto di <b>ferie, ROL ed ex festività</b> con i saldi della busta</span></label>
       <label class="bpchk"><input type="checkbox" id="bpAggTratt" checked><span>Aggiorna le trattenute stimate (<b id="bpTrattPerc"></b>) per calcolare meglio il netto dei prossimi mesi</span></label>
       <details class="letto"><summary>Mostra il testo letto</summary><pre id="bpTesto"></pre></details>
       <div class="msgerr" id="bpErr" hidden></div>
@@ -758,7 +795,8 @@
     // riquadro account
     $('gAccediRiga').hidden = !!email || !GS.configurato();
     $('gSyncRiga').hidden = !email;
-    $('gTesto').innerHTML = !GS.configurato() ? 'I dati sono salvati su questo dispositivo. <span class="tx">(Per la sincronizzazione con Google va inserito il Client ID in js/config.js: vedi README.)</span>'
+    $('gbox').hidden = !GS.configurato(); // senza configurazione l'app funziona solo sul dispositivo, senza messaggi tecnici
+    $('gTesto').innerHTML = !GS.configurato() ? ''
       : email ? 'Collegato come <b>' + escapeHtml(email) + '</b>.<br>' + escapeHtml(st.messaggio || '') + (D.meta.ultimaSync ? '<br><span class="tx">Ultima sincronizzazione: ' + quanto(D.meta.ultimaSync) + '</span>' : '')
       : 'I dati sono salvati solo su questo dispositivo. Accedi per averli anche nel tuo Google Drive, nel Calendario e sugli altri dispositivi.';
     $('gFoglio').hidden = !(email && GS.puoScegliereFoglio());
@@ -1184,14 +1222,26 @@
     const tot = (+R.ferieAnno || 0) + (+R.ferieResiduo || 0);
     return Object.assign(out, { tot, restano: tot - val(date.length) });
   }
+  /** Saldi di ROL ed ex festività (dall'ultima busta paga o scritti a mano). */
+  function permessi() {
+    const R = regole || {};
+    const voci = [];
+    if (R.rolSaldo != null && R.rolSaldo !== '') voci.push(['ROL', +R.rolSaldo]);
+    if (R.exfestSaldo != null && R.exfestSaldo !== '') voci.push(['ex festività', +R.exfestSaldo]);
+    if (!voci.length) return null;
+    const u = R.permUnita === 'giorni' ? 'gg' : 'h', da = /^\d{4}-\d{2}$/.test(R.permSaldoMese || '') ? 'busta paga di ' + MESI[+R.permSaldoMese.slice(5) - 1] : 'inseriti a mano';
+    return { testo: voci.map(v => v[0] + ' ' + fmtOre(v[1]) + ' ' + u).join(' · '), da, voci, u };
+  }
   function cardFerie() {
     const F = contoFerie(); if (!F) return '';
+    const Pm = permessi();
     const p = v => Math.max(0, Math.min(100, F.tot ? v / F.tot * 100 : 0));
     return '<button class="card" data-k="ferie"><span class="ico bg c-ferie" style="font-size:20px">🏖️</span><span class="lb" style="flex:1">' +
       '<span>Ferie ' + anno + '</span><b' + (F.restano < 0 ? ' style="color:var(--fest)"' : '') + '>Ne restano ' + fmtOre(F.restano) + ' ' + F.u + '</b>' +
       '<span class="fbarra"><i style="width:' + p(F.usate) + '%;background:#34a853"></i><i style="width:' + p(F.programmate) + '%;background:#8ab4f8"></i></span>' +
       '<small>' + (F.busta ? 'a fine anno · busta paga di ' + MESI[+F.busta.mese.slice(5) - 1] + ': saldo ' + fmtOre(F.busta.saldo) + ' · programmate ' + fmtOre(F.programmate)
-        : 'godute ' + fmtOre(F.usate) + ' · programmate ' + fmtOre(F.programmate) + ' · su ' + fmtOre(F.tot) + ' ' + F.u) + '</small></span><span class="fr">›</span></button>';
+        : 'godute ' + fmtOre(F.usate) + ' · programmate ' + fmtOre(F.programmate) + ' · su ' + fmtOre(F.tot) + ' ' + F.u) + '</small>' +
+      (Pm ? '<small>🗓️ ' + escapeHtml(Pm.testo) + '</small>' : '') + '</span><span class="fr">›</span></button>';
   }
   function dettaglioFerie() {
     const F = contoFerie(), R = regole || {};
@@ -1199,6 +1249,8 @@
       '</span><span class="vl">' + (F.inOre ? ore(F.og) : '1 g') + '</span></div>';
     const corpo = '<div class="fconti"><div><b>' + fmtOre(F.tot) + '</b><span>spettanti</span></div><div><b>' + fmtOre(F.usate + F.programmate) + '</b><span>usate</span></div>' +
       '<div><b style="color:' + (F.restano < 0 ? 'var(--fest)' : 'var(--ok)') + '">' + fmtOre(F.restano) + '</b><span>restano</span></div></div>' +
+      (permessi() ? '<div class="det-lista" style="margin-bottom:10px">' + permessi().voci.map(v => '<div class="det-r"><span><span class="tx2">' + (v[0] === 'ROL' ? 'Permessi ROL' : 'Ex festività / festività non godute') +
+        '</span><br><span class="tx">' + escapeHtml(permessi().da) + '</span></span><span class="vl">' + fmtOre(v[1]) + ' ' + permessi().u + '</span></div>').join('') + '</div>' : '') +
       (F.date.length ? '<div class="det-lista">' +
         (F.prog.length ? '<div class="det-sett"><span>Programmate</span><span>' + F.prog.length + '</span></div>' + F.prog.map(k => riga(k, false)).join('') : '') +
         (F.godute.length ? '<div class="det-sett"><span>Godute</span><span>' + F.godute.length + '</span></div>' + F.godute.slice().reverse().map(k => riga(k, true)).join('') : '') + '</div>'
@@ -1370,25 +1422,34 @@
     if (m1) mese = m1[2] + '-' + String(MM.indexOf(m1[1]) + 1).padStart(2, '0');
     else { const m2 = T.match(/(?:MESE|PERIODO|RETRIBUZIONE)[^\n]{0,25}?\b(0?[1-9]|1[0-2])[\/\-.](20\d\d)\b/) || T.match(/\b(0?[1-9]|1[0-2])[\/\-](20\d\d)\b/);
       if (m2) mese = m2[2] + '-' + String(+m2[1]).padStart(2, '0'); }
-    // ferie: riga che inizia con FERIE (non permessi o ex festività)
-    let ferieV = null, unita = null;
-    const rf = righe.find(r => /^FERIE\b/.test(r.testo) && r.el.some(p => p.v != null)) || righe.find(r => /\bFERIE\b/.test(r.testo) && !/PERMESS|FESTIVIT|ROL\b/.test(r.testo) && r.el.some(p => p.v != null));
-    if (rf) {
-      const kw = rf.testo.match(/(SALDO|RESIDU[OEI]|DA GODERE|RIMANENZA)\s*:?\s*(-?[\d.,]+-?)/);
-      if (kw) ferieV = numero(kw[2]);
-      if (ferieV == null) {
-        // tabella: colonna con intestazione Saldo / Residuo sopra la riga delle ferie
+    // saldo di una riga del riepilogo ferie/permessi: "Saldo 12,00" sulla riga, oppure la colonna Saldo/Residuo, oppure l'ultimo numero
+    const saldoDi = rf => {
+      if (!rf) return { v: null, unita: null };
+      let v = null;
+      const kw = rf.testo.match(/(SALDO|RESIDU[OEI]|DA GODERE|RIMANENZA|SPETTANTI RESIDU[OEI])\s*:?\s*(-?[\d.,]+-?)/);
+      if (kw) v = numero(kw[2]);
+      if (v == null) {
         const testa = P.filter(p => /^(SALDO|RESIDU[OEI]?|RESID\.?|DA|RIMAN)/.test(p.u) && !/^RES\.?$/.test(p.u) && p.yc < rf.yc && p.yc > rf.yc - H * 8);
         const nums = rf.el.filter(p => p.v != null);
         if (testa.length) {
-          const t0 = testa.sort((a, b) => b.yc - a.yc)[0], xc = (t0.x0 + t0.x1) / 2;
-          ferieV = nums.sort((a, b) => Math.abs((a.x0 + a.x1) / 2 - xc) - Math.abs((b.x0 + b.x1) / 2 - xc))[0].v;
-        } else ferieV = nums[nums.length - 1].v; // di solito l'ultimo numero è il saldo
+          const t0 = testa.sort((a, c) => c.yc - a.yc)[0], xc = (t0.x0 + t0.x1) / 2;
+          v = nums.sort((a, c) => Math.abs((a.x0 + a.x1) / 2 - xc) - Math.abs((c.x0 + c.x1) / 2 - xc))[0].v;
+        } else v = nums[nums.length - 1].v;
       }
       const vicino = righe.filter(r => Math.abs(r.yc - rf.yc) < H * 8).map(r => r.testo).join(' ');
-      unita = /\bORE\b|\bH\b/.test(vicino) ? 'ore' : /\b(GG|GIORNI)\b/.test(vicino) ? 'giorni' : null;
-    }
-    return { mese, lordo, trattenute, netto: netto != null ? netto : (lordo != null && trattenute != null ? Math.round((lordo - trattenute) * 100) / 100 : null), ferie: ferieV, unita, testo };
+      return { v, unita: /\bORE\b|\bH\b/.test(vicino) ? 'ore' : /\b(GG|GIORNI)\b/.test(vicino) ? 'giorni' : null };
+    };
+    const conNumeri = r => r.el.some(p => p.v != null);
+    const EXF = /EX[\s.\-]*FEST|FESTIVITA'?\s*(SOPPRESSE|NON GODUTE|ABOLITE|RIDOTTE)|FEST\.?\s*SOPPR/;
+    // ferie: riga che inizia con FERIE (non permessi o ex festività)
+    const rf = righe.find(r => /^FERIE\b/.test(r.testo) && conNumeri(r)) || righe.find(r => /\bFERIE\b/.test(r.testo) && !/PERMESS|FESTIVIT|ROL\b/.test(r.testo) && conNumeri(r));
+    // permessi ROL (riduzione orario di lavoro)
+    const rr = righe.find(r => r !== rf && /\bR\.?O\.?L\.?\b|RIDUZ(IONE|\.)?\s*ORARIO|^PERMESS[OI]\b(?!.*(STUDIO|SINDAC|ELETTOR|LUTTO|104))/.test(r.testo) && !EXF.test(r.testo) && conNumeri(r));
+    // ex festività / festività non godute
+    const rx = righe.find(r => r !== rf && r !== rr && EXF.test(r.testo) && conNumeri(r));
+    const sf = saldoDi(rf), sr = saldoDi(rr), sx = saldoDi(rx);
+    const ferieV = sf.v, unita = sf.unita;
+    return { mese, lordo, trattenute, netto: netto != null ? netto : (lordo != null && trattenute != null ? Math.round((lordo - trattenute) * 100) / 100 : null), ferie: ferieV, unita, rol: sr.v, exfest: sx.v, unitaPermessi: sr.unita || sx.unita || 'ore', testo };
   }
 
   async function caricaBusta(file) {
@@ -1407,11 +1468,12 @@
     $('bpMese').value = r.mese || iso(anno, mese, 1).slice(0, 7);
     const metti = (id, v) => { $(id).value = v == null ? '' : v; $(id).className = v == null ? 'manca' : 'trovato'; };
     metti('bpLordo', r.lordo); metti('bpTratt', r.trattenute); metti('bpNetto', r.netto); metti('bpFerie', r.ferie);
+    metti('bpRol', r.rol); metti('bpExf', r.exfest); $('bpUnitaP').value = r.unitaPermessi || 'ore';
     $('bpUnita').value = r.unita || R.ferieUnita || 'giorni';
     const trovati = [r.mese, r.lordo, r.netto, r.ferie].filter(v => v != null).length;
     $('bpSotto').innerHTML = trovati === 4 ? 'Ho trovato tutte le voci: controllale prima di confermare.'
       : 'Controlla i valori: i campi con il <span style="color:var(--fest)">bordo rosso</span> non li ho trovati, scrivili tu (oppure lasciali vuoti).';
-    $('bpAggFerie').checked = r.ferie != null && !!ferie;
+    $('bpAggFerie').checked = r.ferie != null || r.rol != null || r.exfest != null;
     $('bpTesto').textContent = r.testo || '(nessun testo)';
     $('bpErr').hidden = true;
     aggiornaPercBusta(); passoBp(3);
@@ -1426,7 +1488,8 @@
     if (!/^\d{4}-\d{2}$/.test(m)) { $('bpErr').textContent = 'Indica il mese della busta paga.'; $('bpErr').hidden = false; return; }
     $('bpSalva').disabled = true; $('bpErr').hidden = true;
     const d = { mese: m, lordo: $('bpLordo').value, trattenute: $('bpTratt').value, netto: $('bpNetto').value, ferie: $('bpFerie').value, unita: $('bpUnita').value,
-      aggFerie: $('bpAggFerie').checked && $('bpFerie').value !== '', aggTratt: $('bpAggTratt').checked, nomeFile: bpFile ? bpFile.name : '', tipo: bpFile ? bpFile.type : '' };
+      rol: $('bpRol').value, exfest: $('bpExf').value, unitaPermessi: $('bpUnitaP').value,
+      aggFerie: $('bpAggFerie').checked && ($('bpFerie').value !== '' || $('bpRol').value !== '' || $('bpExf').value !== ''), aggTratt: $('bpAggTratt').checked, nomeFile: bpFile ? bpFile.name : '', tipo: bpFile ? bpFile.type : '' };
     stato('Archivio la busta paga…');
     try {
       const r = await chiama('salvaBustaPaga', d, bpB64, anno, mese);
@@ -1446,6 +1509,7 @@
     $('rDom').checked = !!R.domenica; $('rLoc').value = R.locali || ''; $('rTratt').value = Math.round(R.tratt * 100);
     $('fUnita').value = R.ferieUnita === 'ore' ? 'ore' : 'giorni'; $('fAnno').value = R.ferieAnno || 0; $('fResiduo').value = R.ferieResiduo || 0;
     $('fSab').checked = R.ferieSabato !== false; $('fOre').value = ferie ? ferie.oreGiorno : '';
+    $('fRol').value = R.rolSaldo == null ? '' : R.rolSaldo; $('fExf').value = R.exfestSaldo == null ? '' : R.exfestSaldo; $('fUnitaP').value = R.permUnita === 'giorni' ? 'giorni' : 'ore';
     etichetteFerie();
   }
   function etichetteFerie() {
@@ -1465,6 +1529,7 @@
         oreMese: $('rOreMese').value, paga: $('rPaga').value, pStra: $('rStra').value, pFest: $('rFest').value,
         tratt: $('rTratt').value, domenica: $('rDom').checked, locali: $('rLoc').value,
         ferieAnno: $('fAnno').value, ferieResiduo: $('fResiduo').value, ferieUnita: $('fUnita').value, ferieSabato: $('fSab').checked, ferieOre: $('fOre').value,
+        rolSaldo: $('fRol').value, exfestSaldo: $('fExf').value, permUnita: $('fUnitaP').value,
       }, anno, mese);
       if (r.tipi) setTipi(r.tipi);
       applica(r); riempiRegole(); render();
@@ -1642,9 +1707,54 @@
   }
   function apriSezione(id) {
     $('benv').classList.remove('on'); $('det').classList.remove('on');
-    $('impBox').open = true;
-    setTimeout(() => $(id).scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    apriImpostazioni(id);
   }
+
+  /* ================= impostazioni a pagina intera ================= */
+  const SEZIONI = [
+    ['regoleBox', '💶', 'Paga e straordinario', () => regole ? euroPaga(regole.paga) + '/h · ' + (regole.oreMese > 0 ? fmtOre(regole.oreMese) + ' h al mese' : 'ore mensili da impostare') : ''],
+    ['ferieBox', '🏖️', 'Ferie e permessi', () => { const F = contoFerie(); return F ? 'ne restano ' + fmtOre(F.restano) + ' ' + F.u : ''; }],
+    ['turniBox', '🎨', 'I miei turni', () => tipi.map(t => (t.icona || '') + t.sigla).join(' ')],
+    ['calBox', '📅', 'Google Calendar', () => (Strafobico.dati() || { meta: {} }).meta.email ? 'calendario «Turni lavoro»' : 'si attiva accedendo con Google'],
+    ['gbox', '☁️', 'Account Google', () => (Strafobico.dati() || { meta: {} }).meta.email || 'non collegato: i dati sono solo su questo dispositivo'],
+    ['infoBox', 'ℹ️', 'Informazioni e privacy', () => 'App ideata da Stefano Tanca'],
+  ];
+  let sezImp = null;
+  function apriImpostazioni(sez) {
+    const giaAperta = !$('impBox').hidden;
+    $('impBox').hidden = false; document.body.style.overflow = 'hidden';
+    if (!giaAperta) { try { history.pushState({ imp: 1 }, ''); } catch (e) { } }
+    mostraSezImp(sez || null);
+  }
+  function mostraSezImp(sez) {
+    sezImp = sez;
+    const menu = $('impMenu');
+    if (!sez) {
+      menu.innerHTML = '';
+      SEZIONI.forEach(([id, ic, tit, sotto]) => {
+        if ($(id).hidden) return; // es. ferie senza tipo Ferie, account senza configurazione
+        const b = document.createElement('button');
+        b.innerHTML = '<span class="pi"></span><span class="pt"><b></b><small></small></span><span class="fr">›</span>';
+        b.querySelector('.pi').textContent = ic; b.querySelector('b').textContent = tit;
+        let s = ''; try { s = sotto() || ''; } catch (e) { }
+        b.querySelector('small').textContent = s; b.querySelector('small').hidden = !s;
+        b.onclick = () => mostraSezImp(id);
+        menu.appendChild(b);
+      });
+    }
+    menu.hidden = !!sez;
+    document.querySelectorAll('#impBox .sez').forEach(s => s.classList.toggle('attiva', s.id === sez));
+    const voce = SEZIONI.find(x => x[0] === sez);
+    $('impTitolo').textContent = voce ? voce[1] + ' ' + voce[2] : 'Impostazioni';
+    $('impBox').scrollTop = 0;
+    if (sez === 'calBox') controllaCal();
+  }
+  function chiudiImpostazioni() { $('impBox').hidden = true; document.body.style.overflow = ''; sezImp = null; }
+  function indietroImpostazioni() { if (sezImp) mostraSezImp(null); else { chiudiImpostazioni(); try { if (history.state && history.state.imp) history.back(); } catch (e) { } } }
+  window.addEventListener('popstate', () => {
+    if ($('impBox').hidden) return;
+    if (sezImp) { mostraSezImp(null); try { history.pushState({ imp: 1 }, ''); } catch (e) { } } else chiudiImpostazioni();
+  });
 
   /* ================= tocco sui giorni ================= */
   function tocca(k) {
@@ -2580,7 +2690,8 @@
   $('calControlla').onclick = controllaCal;
   $('calRipara').onclick = riparaCal;
   $('calProva').onclick = provaCal;
-  $('impBox').addEventListener('toggle', () => { if ($('impBox').open && !DEMO) controllaCal(); });
+  $('apriImpost').onclick = () => apriImpostazioni();
+  $('impIndietro').onclick = indietroImpostazioni;
   $('detChiudi').onclick = () => $('det').classList.remove('on');
   $('det').onclick = e => { if (e.target === $('det')) $('det').classList.remove('on'); };
   $('homeOk').onclick = async () => {

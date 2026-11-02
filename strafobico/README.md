@@ -7,9 +7,9 @@ App ideata da Stefano Tanca.
 - 📅 Inserimento rapido dei turni (anche più giorni insieme), tipi di turno personalizzabili (nome, sigla, icona, colore, orari)
 - 🕐 Ore lavorate, straordinario oltre le ore mensili, festività italiane, ore di corso
 - 💶 Stipendio stimato (lordo e netto) e confronto con la busta paga vera
-- 🏖️ Ferie: giorni o ore, residuo, saldo letto dalla busta paga
+- 🏖️ Ferie, permessi ROL ed ex festività: saldi letti in automatico dalla busta paga
 - 📷 Importazione dei turni dalla foto della tabella del reparto
-- 📄 Lettura e archivio delle buste paga (PDF o foto)
+- 📄 Lettura e archivio delle buste paga (PDF o foto): lordo, trattenute, netto, ferie, ROL, ex festività
 - 📴 Funziona senza connessione: le modifiche partono appena torna la rete
 - ☁️ Nel proprio Google: foglio «Turni lavoro» (Tabellone annuale, Turni, Buste paga), calendario «Turni lavoro», archivio delle buste paga su Drive
 
