@@ -4,7 +4,7 @@
  */
 window.STRAFOBICO_CONFIG = {
   // ID client OAuth di tipo «Applicazione web» (Google Cloud Console → API e servizi → Credenziali)
-  clientId: 'INSERISCI_QUI_IL_CLIENT_ID.apps.googleusercontent.com',
+  clientId: '620284526514-npv50kqpq8f22s5sp1gkt8st2jfj6maj.apps.googleusercontent.com',
   // Facoltativi: servono solo per «Collega un foglio già esistente» (Google Picker)
   apiKey: '',   // chiave API limitata al tuo sito github.io
   appId: '',    // numero del progetto Google Cloud
