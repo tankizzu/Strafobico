@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy · Strafobico</title>
+<meta name="description" content="Informativa sulla privacy dell'app Strafobico / Strafobico privacy policy">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<style>
+  :root { --bg:#ffffff; --fg:#1f2328; --muted:#5f6368; --line:#e5e7eb; --acc:#1a73e8; --card:#f6f8fb; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#121212; --fg:#e8eaed; --muted:#9aa0a6; --line:#2d2f33; --acc:#8ab4f8; --card:#1c1d20; } }
+  :root[data-theme="dark"] { --bg:#121212; --fg:#e8eaed; --muted:#9aa0a6; --line:#2d2f33; --acc:#8ab4f8; --card:#1c1d20; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size:16px; line-height:1.6; }
+  main { max-width:760px; margin:0 auto; padding:24px 16px 64px; }
+  header { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  header img { width:48px; height:48px; border-radius:22%; }
+  h1 { font-size:26px; margin:0; line-height:1.2; }
+  h2 { font-size:19px; margin:32px 0 6px; padding-top:12px; border-top:1px solid var(--line); }
+  h3 { font-size:16px; margin:20px 0 4px; }
+  p, li { margin:6px 0; }
+  ul { padding-left:22px; }
+  .muted { color:var(--muted); font-size:14px; }
+  .lingue { display:flex; gap:8px; margin:14px 0 4px; }
+  .lingue a { border:1px solid var(--line); border-radius:999px; padding:4px 12px; text-decoration:none; color:var(--acc); font-size:14px; }
+  .box { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin:12px 0; }
+  table { width:100%; border-collapse:collapse; font-size:14px; margin:8px 0; display:block; overflow-x:auto; }
+  th, td { border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; }
+  th { background:var(--card); }
+  code { background:var(--card); border-radius:4px; padding:1px 5px; font-size:13px; word-break:break-all; }
+  a { color:var(--acc); }
+</style>
+</head>
+<body>
+<main>
+  <header><img src="icons/icon-192.png" alt=""><h1>Informativa sulla privacy<br><span class="muted" style="font-size:16px;font-weight:400">Strafobico — turni di lavoro</span></h1></header>
+  <p class="muted">Ultimo aggiornamento: 2 novembre 2026</p>
+  <div class="lingue"><a href="#it">Italiano</a><a href="#en">English</a></div>
+
+  <!-- ===================================================== ITALIANO -->
+  <section id="it" lang="it">
+    <div class="box"><b>In breve.</b> Strafobico non ha server e non raccoglie dati. I tuoi turni, le impostazioni e le buste paga restano sul tuo dispositivo e, se colleghi il tuo account Google, nel <b>tuo</b> Google Drive e nel <b>tuo</b> Google Calendar. Lo sviluppatore non può vederli.</div>
+
+    <h2>1. Chi siamo</h2>
+    <p>Strafobico è un'app web gratuita (installabile come app) ideata da <b>Stefano Tanca</b>, che ne cura lo sviluppo («lo sviluppatore»). Contatto per qualsiasi domanda sulla privacy: <a href="mailto:tankizzu@gmail.com">tankizzu@gmail.com</a>.</p>
+    <p>L'app è pubblicata su GitHub Pages all'indirizzo da cui stai leggendo questa pagina.</p>
+
+    <h2>2. Quali dati tratta l'app</h2>
+    <p>L'app tratta solo i dati che inserisci tu, per farti vedere turni, ore, straordinari, ferie e stima dello stipendio:</p>
+    <ul>
+      <li><b>Turni di lavoro</b>: date, tipi di turno, orari, ore di corso, ferie e assenze, note;</li>
+      <li><b>Impostazioni</b>: paga oraria, ore mensili, percentuali di maggiorazione e trattenute, festività locali, ferie spettanti, il nome con cui compari nella tabella turni (usato per l'importazione da foto);</li>
+      <li><b>Buste paga</b> che scegli di caricare: il file (PDF o foto) e i valori letti (mese, lordo, trattenute, netto, saldo ferie);</li>
+      <li><b>Foto della tabella turni</b> che scegli di importare;</li>
+      <li>se colleghi Google: il tuo <b>indirizzo email</b>, mostrato nell'app per indicare con quale account sei collegato.</li>
+    </ul>
+    <p>L'app <b>non</b> usa cookie di profilazione, strumenti di analisi o pubblicità, e non raccoglie posizione, contatti o altri dati del dispositivo.</p>
+
+    <h2>3. Dove vengono conservati i dati</h2>
+    <h3>Sul tuo dispositivo</h3>
+    <p>I dati vengono salvati nella memoria del browser del tuo dispositivo (IndexedDB e localStorage), così l'app funziona anche senza connessione. Puoi cancellarli in qualsiasi momento eliminando i dati del sito dalle impostazioni del browser o disinstallando l'app.</p>
+    <h3>Nel tuo account Google (solo se scegli di collegarlo)</h3>
+    <p>Se accedi con Google, l'app crea e aggiorna, <b>nel tuo account</b>:</p>
+    <ul>
+      <li>in Google Drive la cartella «AppTurni › Strafobico» con il foglio «Turni lavoro» e la cartella «Buste paga» con l'archivio delle buste paga;</li>
+      <li>in Google Calendar il calendario «Turni lavoro» con un evento per ogni turno.</li>
+    </ul>
+    <p>Questi dati sono soggetti all'<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">informativa sulla privacy di Google</a>. Puoi eliminarli quando vuoi da Drive e da Calendar.</p>
+    <h3>Nessun server dello sviluppatore</h3>
+    <p>Strafobico non ha un proprio server né una propria banca dati: i dati viaggiano solo tra il tuo dispositivo e Google. <b>Lo sviluppatore non riceve, non vede e non conserva i tuoi dati.</b></p>
+
+    <h2>4. Dati di Google: autorizzazioni richieste e uso</h2>
+    <p>Quando colleghi l'account, Google ti chiede di autorizzare questi accessi:</p>
+    <table>
+      <tr><th>Autorizzazione</th><th>A cosa serve</th></tr>
+      <tr><td><code>drive.file</code><br>Vedere, modificare, creare ed eliminare solo i file di Google Drive usati con l'app</td><td>Creare e aggiornare il foglio «Turni lavoro», le cartelle e l'archivio delle buste paga. L'app <b>non può vedere gli altri file</b> del tuo Drive, ma solo quelli che crea o che scegli esplicitamente (per esempio con «Collega un foglio già esistente»).</td></tr>
+      <tr><td><code>calendar.app.created</code><br>Creare calendari secondari e gestire gli eventi solo di quei calendari</td><td>Creare il calendario «Turni lavoro» e i relativi eventi. L'app <b>non può vedere gli altri calendari</b> né i tuoi altri impegni.</td></tr>
+      <tr><td><code>openid</code>, <code>email</code></td><td>Sapere con quale account sei collegato e mostrarlo nell'app.</td></tr>
+    </table>
+    <p>L'accesso concesso dura al massimo un'ora ed è conservato solo sul tuo dispositivo. Puoi revocarlo in qualsiasi momento dall'app («Esci») oppure dalla pagina <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Account Google › Sicurezza › App di terze parti con accesso all'account</a>.</p>
+    <div class="box"><b>Uso limitato.</b> L'uso e il trasferimento ad altre app delle informazioni ricevute dalle API di Google da parte di Strafobico rispettano le <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Norme sui dati utente dei servizi API di Google</a>, inclusi i requisiti di Uso limitato (Limited Use). In particolare, i dati di Google sono usati solo per offrirti le funzioni dell'app descritte sopra, non vengono trasferiti a terzi, non sono usati per pubblicità e non vengono letti da persone.</div>
+
+    <h2>5. Foto e buste paga</h2>
+    <p>La lettura delle foto della tabella turni e delle buste paga (riconoscimento del testo) avviene <b>sul tuo dispositivo</b>, con librerie che girano nel browser: le immagini e i PDF non vengono inviati a servizi di lettura esterni. Le buste paga vengono salvate solo sul dispositivo e, se hai collegato Google, nel tuo Google Drive.</p>
+
+    <h2>6. Servizi di terze parti</h2>
+    <p>Per funzionare l'app scarica alcuni componenti da servizi esterni. In queste richieste il servizio riceve dati tecnici come l'indirizzo IP e il tipo di browser, ma <b>nessuno dei tuoi dati</b>:</p>
+    <table>
+      <tr><th>Servizio</th><th>Per cosa</th></tr>
+      <tr><td>GitHub Pages (GitHub, Inc.)</td><td>Ospita i file dell'app. <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Privacy</a></td></tr>
+      <tr><td>Google (Identity Services, API di Drive, Fogli, Calendar)</td><td>Accesso e sincronizzazione, solo se colleghi l'account. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a></td></tr>
+      <tr><td>jsDelivr, cdnjs (Cloudflare)</td><td>Librerie per la lettura delle foto (Tesseract.js) e dei PDF (pdf.js), scaricate al primo uso</td></tr>
+      <tr><td>Fontshare (Indian Type Foundry)</td><td>Carattere tipografico «Pally»</td></tr>
+    </table>
+
+    <h2>7. Base giuridica e i tuoi diritti</h2>
+    <p>I dati sono trattati per fornirti il servizio che hai scelto di usare e su tua iniziativa. Il collegamento a Google si basa sul tuo consenso, che puoi revocare in ogni momento. Hai i diritti previsti dal Regolamento UE 2016/679 (GDPR): accesso, rettifica, cancellazione, limitazione, portabilità e opposizione. Poiché i dati sono solo sul tuo dispositivo e nel tuo account Google, puoi esercitarli direttamente: consulti, modifichi ed esporti i dati dall'app o dal foglio «Turni lavoro», e li cancelli eliminando i dati del sito e i file e il calendario creati in Google. Per qualsiasi domanda puoi scrivere al contatto indicato al punto 1. Hai anche il diritto di presentare reclamo al <a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">Garante per la protezione dei dati personali</a>.</p>
+
+    <h2>8. Conservazione e cancellazione</h2>
+    <p>I dati restano finché non li cancelli tu:</p>
+    <ul>
+      <li><b>sul dispositivo:</b> elimini i dati del sito o disinstalli l'app;</li>
+      <li><b>in Google:</b> elimini la cartella «AppTurni» da Drive e il calendario «Turni lavoro» da Calendar, poi revochi l'accesso all'app.</li>
+    </ul>
+    <p>Lo sviluppatore non conserva copie.</p>
+
+    <h2>9. Minori</h2>
+    <p>L'app è pensata per lavoratori e non è rivolta a minori di 14 anni.</p>
+
+    <h2>10. Modifiche</h2>
+    <p>Eventuali modifiche a questa informativa saranno pubblicate su questa pagina, con la data di aggiornamento in alto.</p>
+  </section>
+
+  <!-- ===================================================== ENGLISH -->
+  <section id="en" lang="en">
+    <h2 style="border-top:3px solid var(--line);margin-top:48px">Privacy Policy (English)</h2>
+    <div class="box"><b>In short.</b> Strafobico has no servers and collects no data. Your shifts, settings and payslips stay on your device and, if you connect your Google account, in <b>your own</b> Google Drive and Google Calendar. The developer cannot see them.</div>
+
+    <h3>1. Who we are</h3>
+    <p>Strafobico is a free web app (installable as an app) created by <b>Stefano Tanca</b> (“the developer”). Privacy contact: <a href="mailto:tankizzu@gmail.com">tankizzu@gmail.com</a>. The app is hosted on GitHub Pages at the address of this page.</p>
+
+    <h3>2. Data processed</h3>
+    <p>The app only processes the data you enter in order to show shifts, hours, overtime, holidays and estimated pay:</p>
+    <ul>
+      <li>work shifts;</li>
+      <li>settings (hourly pay, monthly hours, percentages, local holidays, holiday entitlement, your name as it appears in the shift roster);</li>
+      <li>payslips you choose to upload, and the values read from them;</li>
+      <li>photos of the shift roster you choose to import;</li>
+      <li>if you connect Google, your email address, shown in the app to indicate the connected account.</li>
+    </ul>
+    <p>No tracking cookies, analytics, advertising, location or contacts.</p>
+
+    <h3>3. Where data is stored</h3>
+    <ul>
+      <li><b>On your device</b> (browser IndexedDB/localStorage), so the app works offline. You can delete it by clearing the site data or uninstalling the app.</li>
+      <li><b>In your Google account</b>, only if you connect it: the folder “AppTurni › Strafobico” in Google Drive, with the spreadsheet “Turni lavoro” and the payslip archive, and the calendar “Turni lavoro” in Google Calendar.</li>
+    </ul>
+    <p>The developer operates no server or database and never receives, sees or stores your data.</p>
+
+    <h3>4. Google user data: scopes and use</h3>
+    <ul>
+      <li><code>drive.file</code>: create and update only the files the app creates (spreadsheet, folders, payslips) or that you explicitly pick. The app cannot see your other Drive files.</li>
+      <li><code>calendar.app.created</code>: create the “Turni lavoro” calendar and manage events only on it. The app cannot see your other calendars or events.</li>
+      <li><code>openid</code>, <code>email</code>: show which account is connected.</li>
+    </ul>
+    <p>Access tokens last at most one hour and are kept only on your device. You can revoke access at any time in the app (“Esci”) or at <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">myaccount.google.com/permissions</a>.</p>
+    <div class="box"><b>Limited Use.</b> Strafobico's use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>, including the Limited Use requirements. Google user data is used only to provide the user-facing features described above. It is not transferred to third parties, not used for advertising, and not read by humans.</div>
+
+    <h3>5. Photos and payslips</h3>
+    <p>Text recognition of roster photos and payslips runs <b>on your device</b> in the browser. Images and PDFs are not sent to external recognition services.</p>
+
+    <h3>6. Third-party services</h3>
+    <p>These services receive only technical data such as your IP address when the app loads components from them, never your data:</p>
+    <ul>
+      <li>GitHub Pages (hosting);</li>
+      <li>Google (sign-in and sync, only if connected);</li>
+      <li>jsDelivr and cdnjs (Tesseract.js and pdf.js libraries);</li>
+      <li>Fontshare (font).</li>
+    </ul>
+
+    <h3>7. Your rights</h3>
+    <p>Under the EU GDPR you can access, rectify, delete, restrict, port and object to the processing of your data. Since the data lives only on your device and in your Google account, you can exercise these rights directly, or contact us at the address above. You may also lodge a complaint with your data protection authority; in Italy this is the Garante per la protezione dei dati personali.</p>
+
+    <h3>8. Retention and deletion</h3>
+    <p>Data is kept until you delete it: clear the site data on your device, then delete the “AppTurni” folder and the “Turni lavoro” calendar in Google, and revoke the app's access. The developer keeps no copies.</p>
+
+    <h3>9. Children</h3>
+    <p>The app is intended for workers and is not directed at children under 14.</p>
+
+    <h3>10. Changes</h3>
+    <p>Any changes to this policy will be posted on this page, with the date updated above.</p>
+  </section>
+
+  <p class="muted" style="margin-top:40px"><a href="./">← Torna all'app / Back to the app</a></p>
+</main>
+</body>
+</html>
