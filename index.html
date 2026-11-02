@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Strafobico – Turni, ore, ferie e stipendio</title>
+  <meta name="description" content="Strafobico è un'app gratuita per segnare i turni di lavoro e calcolare ore, straordinari, ferie e stipendio, sincronizzata con il proprio account Google.">
+  <link rel="icon" href="strafobico/icons/icon-512.png">
+  <style>
+    :root { --bg:#f7f7f9; --card:#fff; --text:#1d1d22; --muted:#5b5b66; --accent:#e8a400; --line:#e4e4ea; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#16161a; --card:#202026; --text:#f0f0f3; --muted:#a6a6b0; --line:#33333b; }
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+    main { max-width:760px; margin:0 auto; padding:40px 16px 24px; }
+    header { text-align:center; margin-bottom:32px; }
+    header img { width:112px; height:112px; border-radius:24px; }
+    h1 { font-size:2.4rem; margin:12px 0 4px; }
+    .tagline { color:var(--muted); font-size:1.15rem; margin:0 0 24px; }
+    .btn { display:inline-block; background:var(--accent); color:#1d1d22; font-weight:700; text-decoration:none; padding:14px 28px; border-radius:12px; }
+    section { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px 24px; margin-bottom:20px; }
+    h2 { font-size:1.25rem; margin:0 0 10px; }
+    ul { padding-left:0; list-style:none; margin:0; }
+    li { padding:6px 0; }
+    a { color:inherit; }
+    footer { text-align:center; color:var(--muted); font-size:.95rem; padding:8px 16px 40px; }
+    footer a { margin:0 8px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="strafobico/icons/icon-512.png" alt="Logo di Strafobico">
+    <h1>Strafobico</h1>
+    <p class="tagline">Turni di lavoro, ore, straordinari, ferie e stipendio, in un'unica app gratuita.</p>
+    <a class="btn" href="strafobico/">Apri l'app</a>
+  </header>
+
+  <section>
+    <h2>Cos'è Strafobico</h2>
+    <p>Strafobico è un'app web gratuita, installabile sul telefono, per chi lavora a turni. Serve a segnare i turni e a calcolare automaticamente ore lavorate, straordinari, festività, ferie e stipendio stimato. Funziona anche senza connessione.</p>
+  </section>
+
+  <section>
+    <h2>Cosa puoi fare</h2>
+    <ul>
+      <li>📅 Inserire i turni in pochi tocchi, anche più giorni insieme, con tipi di turno personalizzabili</li>
+      <li>🕐 Calcolare ore lavorate, straordinari e festività italiane</li>
+      <li>💶 Stimare lo stipendio (lordo e netto) e confrontarlo con la busta paga</li>
+      <li>🏖️ Tenere il conto delle ferie e del residuo</li>
+      <li>📷 Importare i turni dalla foto della tabella del reparto</li>
+      <li>📄 Archiviare le buste paga (PDF o foto)</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Perché chiede l'accesso a Google</h2>
+    <p>L'accesso con Google è facoltativo e serve solo a salvare i tuoi dati nel <strong>tuo</strong> account, così ritrovi tutto su ogni dispositivo:</p>
+    <ul>
+      <li>☁️ <strong>Google Drive e Fogli:</strong> l'app crea un foglio «Turni lavoro» e una cartella per le buste paga. Può vedere solo i file che ha creato lei, non il resto del tuo Drive.</li>
+      <li>🗓️ <strong>Google Calendar:</strong> l'app crea un calendario «Turni lavoro» con i tuoi turni. Non vede gli altri calendari.</li>
+      <li>✉️ <strong>Indirizzo email:</strong> serve solo a mostrarti con quale account sei collegato.</li>
+    </ul>
+    <p>Strafobico non ha un server: i dati restano sul tuo dispositivo e nel tuo account Google e non vengono mai inviati a terzi.</p>
+  </section>
+</main>
+
+<footer>
+  <p>
+    <a href="privacy.html">Informativa sulla privacy</a> ·
+    <a href="mailto:tankizzu@gmail.com">Contatti</a>
+  </p>
+  <p>Strafobico è un'app ideata da Stefano Tanca.</p>
+</footer>
+</body>
+</html>
