@@ -342,7 +342,7 @@
       righe.push({ values: valori });
     }
     if (righe.length) R.push({ updateCells: { start: { sheetId, rowIndex: 0, columnIndex: 0 }, rows: righe, fields: 'userEnteredValue,userEnteredFormat,note' } });
-    b.merges.forEach(([r, c, nr, nc]) => R.push({ mergeCells: { range: { sheetId, startRowIndex: r - 1, endRowIndex: r - 1 + nr, startColumnIndex: c - 1, endColumnIndex: c - 1 + nc }, mergeType: 'MERGE_ALL' } }));
+    b.merges.filter(([r, c, nr, nc]) => !((c - 1 < (b.fissaC || 0) && c - 1 + nc > (b.fissaC || 0)) || (r - 1 < (b.fissaR || 0) && r - 1 + nr > (b.fissaR || 0)))).forEach(([r, c, nr, nc]) => R.push({ mergeCells: { range: { sheetId, startRowIndex: r - 1, endRowIndex: r - 1 + nr, startColumnIndex: c - 1, endColumnIndex: c - 1 + nc }, mergeType: 'MERGE_ALL' } }));
     for (let c = 1; c <= cols; c++) R.push({ updateDimensionProperties: { range: { sheetId, dimension: 'COLUMNS', startIndex: c - 1, endIndex: c },
       properties: { pixelSize: b.larg[c] || 100, hiddenByUser: b.nascoste.indexOf(c) >= 0 }, fields: 'pixelSize,hiddenByUser' } });
     Object.keys(b.alt).forEach(r => R.push({ updateDimensionProperties: { range: { sheetId, dimension: 'ROWS', startIndex: r - 1, endIndex: +r }, properties: { pixelSize: b.alt[r] }, fields: 'pixelSize' } }));
