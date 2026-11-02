@@ -5,8 +5,8 @@
  * - le chiamate alle API di Google non passano mai dalla memoria
  * Quando pubblichi una nuova versione, cambia VERSIONE: gli utenti la ricevono alla riapertura.
  */
-const VERSIONE = 'strafobico-v1';
-const APP = ['./', 'index.html', 'manifest.webmanifest', 'js/config.js', 'js/core.js', 'js/google.js',
+const VERSIONE = 'strafobico-v2';
+const APP = ['./', 'index.html', 'privacy.html', 'manifest.webmanifest', 'js/config.js', 'js/core.js', 'js/google.js',
   'icons/logo.webp', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png', 'icons/favicon-32.png'];
 const ESTERNI = /^https:\/\/(cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|unpkg\.com|api\.fontshare\.com|cdn\.fontshare\.com|fonts\.gstatic\.com)\//;
 const MAI = /^https:\/\/([a-z]+\.)?(googleapis\.com|google\.com|gstatic\.com\/_\/)/;

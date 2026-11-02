@@ -22,6 +22,7 @@ Tutto gira nel browser: **non c'è nessun server**. I dati di ogni persona stann
 | File | A cosa serve |
 |---|---|
 | `index.html` | L'app (interfaccia) |
+| `privacy.html` | Informativa sulla privacy (italiano e inglese), da indicare a Google |
 | `js/core.js` | Dati sul dispositivo e tutti i calcoli (ore, straordinari, festivi, paga, ferie) |
 | `js/google.js` | Accesso con Google e sincronizzazione con Fogli, Drive e Calendar |
 | `js/config.js` | **Da compilare**: il Client ID di Google |
@@ -64,7 +65,13 @@ Serve un «progetto» gratuito su Google Cloud che dica a Google: *questa app pu
 2. *Informazioni sull'app*: nome **Strafobico**, email di assistenza (la tua).
 3. *Pubblico*: **Esterno**.
 4. *Dati di contatto*: la tua email → **Crea**.
-5. **Branding**: carica il logo (`icons/icon-512.png`) e aggiungi il dominio autorizzato `github.io`. Facoltativo.
+5. **Branding**:
+   - **Link all'informativa sulla privacy**: `https://TUO-NOME-UTENTE.github.io/strafobico/privacy.html`
+   - **Home page dell'applicazione**: `https://TUO-NOME-UTENTE.github.io/strafobico/`
+   - **Domini autorizzati**: `TUO-NOME-UTENTE.github.io`
+   - Logo: `icons/icon-512.png` (facoltativo; se lo carichi, Google chiede la verifica del branding)
+
+   Prima di pubblicare, in `privacy.html` sostituisci le due occorrenze di `INSERISCI_EMAIL_DI_CONTATTO` con l'email a cui vuoi ricevere domande sulla privacy.
 6. **Accesso ai dati → Aggiungi o rimuovi ambiti** e aggiungi:
    - `.../auth/drive.file` — solo i file creati dall'app
    - `.../auth/calendar.app.created` — solo i calendari creati dall'app
